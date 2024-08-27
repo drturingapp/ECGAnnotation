@@ -1,0 +1,43 @@
+@font-face {
+	font-family: Greycliff_Bold;
+	src: url("../../Fonts/Greycliff-CF-Bold.otf");
+}
+
+.controlPanel {
+	background-color: lightgray;
+	text-align: center;
+	padding: 10px;
+	font-family: Greycliff_Bold;
+	border-radius: 11px;
+	border: solid;
+	border-width: medium;
+	border-color: darkgray;
+}
+
+.controlHeader {
+	grid-column: span 2;
+}
+
+.controlGrid {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	grid-column: span 2;
+	align-items: center;
+	justify-items: center;
+}
+
+.metadataGrid {
+	display: grid;
+	grid-template-columns: 1fr 1fr 1fr;
+	grid-column: span 1;
+	align-items: center;
+	justify-items: center;
+}
+
+.controlButtonText {
+	padding: 20px;
+}
+
+.controlButton {
+	padding: 20px;
+}

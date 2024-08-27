@@ -1,0 +1,106 @@
+@font-face {
+	font-family: Greycliff_Bold;
+	src: url("../../Fonts/Greycliff-CF-Bold.otf");
+}
+
+.container {
+	//width: 95vw;
+	width: 95%;
+	margin: 0 auto;
+}
+
+.commentContainer {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	margin-top: -30px;
+	margin-left: 200px;
+	width: 500px;
+}
+
+.submitButton {
+	margin-left: 10px;
+}
+
+
+
+.graphBackground{
+	//background-image: url('../../Images/gridBackground.png');
+	//background-image:url("data:image/gif;base64,R0lGODlhUAAPAKIAAAsLav///88PD9WqsYmApmZmZtZfYmdakyH5BAQUAP8ALAAAAABQAA8AAAPbWLrc/jDKSVe4OOvNu/9gqARDSRBHegyGMahqO4R0bQcjIQ8E4BMCQc930JluyGRmdAAcdiigMLVrApTYWy5FKM1IQe+Mp+L4rphz+qIOBAUYeCY4p2tGrJZeH9y79mZsawFoaIRxF3JyiYxuHiMGb5KTkpFvZj4ZbYeCiXaOiKBwnxh4fnt9e3ktgZyHhrChinONs3cFAShFF2JhvCZlG5uchYNun5eedRxMAF15XEFRXgZWWdciuM8GCmdSQ84lLQfY5R14wDB5Lyon4ubwS7jx9NcV9/j5+g4JADs=");
+	background-repeat: repeat;
+	//background-color: aquamarine;
+}
+
+.metadataGrid {
+	display: grid;
+	grid-template-columns: 1fr 1fr 1fr;
+}
+
+.headerGrid {
+	display: grid;
+	grid-template-columns: 1fr 1fr 1fr;
+	grid-column: span 1;
+	align-items: center;
+	justify-items: center;
+}
+
+.directionText {
+	font-family: Greycliff_Bold;
+	align-items: center;
+	justify-items: center;
+	display: flex;
+}
+
+.directions {
+	grid-column: span 2;
+}
+
+.loadData {
+	grid-column: span 2;
+}
+
+// These create boxes and color them as appropriate
+
+
+.myRadioStyle {
+	font-family: Greycliff_Bold;
+	width: 50px;
+	height: 300px;
+	position: fixed;
+	top: 10em;
+	right: 1em;
+}
+
+
+.p { background-color: rgb(217, 128, 250); border: 1px solid #ccc; float: left; width: 8px; height: 8px; }
+.q { background-color: rgb(247, 159, 31); border: 1px solid #ccc; float: left; width: 8px; height: 8px; }
+.r { background-color: rgb(234, 32, 39); border: 1px solid #ccc; float: left; width: 8px; height: 8px; }
+.r2 { background-color: rgb(237, 76, 103); border: 1px solid #ccc; float: left; width: 8px; height: 8px; }
+.s { background-color: rgb(163, 203, 56); border: 1px solid #ccc; float: left; width: 8px; height: 8px; }
+.t { background-color: rgb(6, 82, 221); border: 1px solid #ccc; float: left; width: 8px; height: 8px; }
+.t2 { background-color: rgb(18, 137, 167); border: 1px solid #ccc; float: left; width: 8px; height: 8px; }
+.onset { background-color: rgb(27, 20, 100); border: 1px solid #ccc; float: left; width: 8px; height: 8px; }
+.offset { background-color: rgb(111, 30, 81); border: 1px solid #ccc; float: left; width: 8px; height: 8px; }
+
+// These are for the save button
+.saveButton {
+	font-family: Greycliff_Bold;
+	background-color: lightgreen;
+	text-align: center;
+	width: 45px;
+	height: 30px;
+	position: absolute; /* Can make fixed to make it stay in that corner */
+	top: 0;
+	right: 0;
+	margin-top: 15px;
+	margin-right: 15px;
+	border-color: darkgray;
+	border-width: medium;
+	border-radius: 5px;
+}
+
+.saveButton:hover {
+	transform: scale(1.2)
+}
+
+

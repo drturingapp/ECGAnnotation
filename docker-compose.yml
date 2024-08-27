@@ -1,0 +1,56 @@
+
+services:
+  db: # Defines the 'db' service for MySQL database
+    image: mysql:8.0 # Uses the MySQL 8.0 Docker image
+    environment: # Sets environment variables for the database configuration
+      MYSQL_DATABASE: ecgannotation # Specifies the name of the database
+      MYSQL_ROOT_PASSWORD: password123 # Sets the root password for MySQL
+      MYSQL_PASSWORD: password123 # Sets the password for the MySQL user
+    networks:
+      - sameNetworkAsMysql
+    ports:
+      - 3307:3306
+    volumes:
+      - db_data:/var/lib/mysql
+
+  api: # Defines the 'api' service for the backend API
+    build: # Builds the backend API using the provided Dockerfile
+      context: ./back_end # Specifies the build context directory for the backend
+      dockerfile: Dockerfile # Specifies the Dockerfile to use for building the backend
+    ports:
+      - 3000:3000 # Maps the container's port 3000 to the host's port 3000
+    networks:
+      - sameNetworkAsMysql # Connects the service to the 'sameNetworkAsMysql' network
+    depends_on:
+      - db # Specifies that the 'api' service depends on the 'db' service
+    environment:
+      DB_HOST: host.docker.internal # Use the service name for Docker network communication
+      DB_USER: root
+      DB_PASSWORD: password123
+      DB_NAME: ecgannotation
+      DB_PORT: 3306
+      PORT: 3000
+    volumes:
+      - ./back_end:/app
+      - /app/node_modules
+
+  frontend:
+    build:
+      context: ./front_end/client
+      dockerfile: Dockerfile
+    ports:
+      - 3001:3000 # Maps the container's port 3000 to the host's port 3001
+    networks:
+      - sameNetworkAsMysql # Connects the service to the 'sameNetworkAsMysql' network
+    depends_on:
+      - api
+    volumes:
+      - ./front_end/client:/app
+      - /app/node_modules
+
+networks:
+  sameNetworkAsMysql: # Defines the 'sameNetworkAsMysql' network
+    driver: bridge # Specifies the network driver as 'bridge'
+
+volumes:
+  db_data: # Persistent storage volume for MySQL data

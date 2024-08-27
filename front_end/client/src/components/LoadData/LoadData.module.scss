@@ -1,0 +1,52 @@
+@font-face {
+	font-family: Greycliff;
+	src: url("../../Fonts/Greycliff-CF-Regular.otf");
+}
+
+.LoadData {
+	text-align: left;
+	border: 1px solid #f5f5f5;
+	border-top-right-radius: 1px;
+	border-top-left-radius: 1px;
+	font-family: Greycliff;
+	margin: 1px auto;
+	grid-column: span 2;
+	width: 75%;
+	position: relative;
+	top: 0px;
+}
+
+.commentContainer {
+	display: flex;
+	justify-content: left;
+	align-items: center;
+	//margin-top: -30px;
+	//margin-left: 200px;
+	width: 100%;
+}
+
+.textField {
+	margin-left: 10px;
+	width: 100%;
+}
+
+
+.submitButton {
+	margin-left: 10px;
+	margin-top: 5px;
+}
+
+.LoadDataInfo {
+	font-size: 10px;
+	padding: 5px;
+}
+
+.LoadDataHeader {
+	font-size: 16px;
+	padding: 5px;
+}
+
+.LoadDataGrid {
+	display: grid;
+	grid-template-columns: 1fr 1fr 1fr;
+}

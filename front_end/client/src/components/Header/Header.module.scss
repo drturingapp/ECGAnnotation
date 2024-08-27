@@ -1,0 +1,19 @@
+@font-face {
+	font-family: Greycliff_Bold;
+	src: url("../../Fonts/Greycliff-CF-Bold.otf");
+}
+
+.header {
+	font-family: Greycliff_Bold;
+	font-size: 20px;
+	background-color: lightgray;
+	text-align: center;
+	margin: 10px auto;
+	border: solid;
+	border-color: darkgray;
+	border-width: medium;
+	border-radius: 5px;
+	height: auto;
+	width: 95%;
+	grid-column: span 1;
+}

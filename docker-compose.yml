@@ -3,13 +3,15 @@ services:
   db: # Defines the 'db' service for MySQL database
     image: mysql:8.0 # Uses the MySQL 8.0 Docker image
     environment: # Sets environment variables for the database configuration
-      MYSQL_DATABASE: ecgannotation # Specifies the name of the database
-      MYSQL_ROOT_PASSWORD: password123 # Sets the root password for MySQL
-      MYSQL_PASSWORD: password123 # Sets the password for the MySQL user
+      MYSQL_DATABASE: "${DB_NAME}" # Specifies the name of the database
+      MYSQL_ROOT_PASSWORD: "${DB_ROOT_PASSWORD}" # Sets the root password for MySQL
+      MYSQL_USER: "${DB_USER}"
+      MYSQL_PASSWORD:  "${DB_PASSWORD}" # Sets the password for the MySQL user
+      MYSQL_ROOT_HOST: "%"
     networks:
       - sameNetworkAsMysql
     ports:
-      - 3307:3306
+      - 3306:3306
     volumes:
       - db_data:/var/lib/mysql
 
@@ -24,10 +26,10 @@ services:
     depends_on:
       - db # Specifies that the 'api' service depends on the 'db' service
     environment:
-      DB_HOST: host.docker.internal # Use the service name for Docker network communication
-      DB_USER: root
-      DB_PASSWORD: password123
-      DB_NAME: ecgannotation
+      DB_HOST: db # Use the service name as hostname, for Docker network communication
+      DB_USER: "${DB_USER}"
+      DB_PASSWORD: "${DB_PASSWORD}"
+      DB_NAME: "${DB_NAME}"
       DB_PORT: 3306
       PORT: 3000
     volumes:

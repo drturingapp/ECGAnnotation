@@ -53,5 +53,5 @@
 			"last 1 safari version"
 		]
 	},
-	"proxy": "https://tinman.cis.udel.edu/ECGAnnotation/backend"
+	"proxy": "http://localhost:3000"
 }

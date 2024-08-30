@@ -13,8 +13,8 @@ COPY package*.json ./
 # Install the dependencies
 RUN npm install
 
-# Define a volume to mount the source code
-VOLUME ["/app"]
+# Copy the rest of the application code
+COPY . .
 
 # Expose the port that the application listens on
 EXPOSE 3000

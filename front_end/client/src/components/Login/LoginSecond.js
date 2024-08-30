@@ -41,7 +41,8 @@ class LoginSecond extends React.Component {
         this.state = {
             username: '',
             password: '',
-            showPassword: false
+            showPassword: false,
+            errorMessage: '', // To store error messages like email verification
         };
 
         this.submitClicked = this.submitClicked.bind(this);
@@ -57,6 +58,10 @@ class LoginSecond extends React.Component {
         axios.get(serverURL + 'authenticate', { mode: 'no-cors', auth: { username, password } })
             .then(response => {
                 console.log('Here');
+                if (response.data.status === 403) {
+                    // If email is not verified, show the message
+                    this.setState({ errorMessage: response.data.msg });
+                }
                 if (response.data === 5) {
                     console.log('admin here');
                     this.props.history.push({ pathname: '/mainContainerAdmin', search: '?query=abc', state: { detail: response.data } });
@@ -70,8 +75,16 @@ class LoginSecond extends React.Component {
                     this.props.history.push({ pathname: '/mainContainer', search: '?query=abc', state: { detail: response.data } });
                 }
             })
-            .catch(err => alert("Sign-in Failed!"));
-    };
+            .catch(err => {
+                if (err.response && err.response.data.status === 403) {
+                    // If email is not verified, show the message
+                    this.setState({ errorMessage: err.response.data.msg });
+                } else {
+                    // For other errors
+                    alert("Sign-in Failed!");
+                }
+            });
+        };
 
     registerClicked = () => {
         this.props.history.push('/register');
@@ -90,6 +103,8 @@ class LoginSecond extends React.Component {
     }
 
     render() {
+        const { errorMessage } = this.state; // Destructure errorMessage from state
+
         return (
             <Container component="main" maxWidth="xs">
                 <CssBaseline />
@@ -97,7 +112,7 @@ class LoginSecond extends React.Component {
                     <Typography component="h1" variant="h5">
                         Sign in
                     </Typography>
-                    <form  noValidate>
+                    <form noValidate>
                         <TextField
                             variant="outlined"
                             margin="normal"
@@ -134,13 +149,18 @@ class LoginSecond extends React.Component {
                                 ),
                             }}
                         />
+                        {/* Error message display */}
+                        {errorMessage && (
+                            <Typography color="error" variant="body2" style={{ marginTop: '16px' }}>
+                                {errorMessage}
+                            </Typography>
+                        )}
                         {/* "Forgot Password?" link after email field */}
                         <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '-8px', marginBottom: '8px' }}>
                             <Link to="/forgot-password" style={{ textDecoration: 'none', color: '#3f51b5' }}>
                                 Forgot password?
                             </Link>
                         </div>
-
                         <Button
                             fullWidth
                             variant="contained"
@@ -149,21 +169,19 @@ class LoginSecond extends React.Component {
                         >
                             Sign In
                         </Button>
-
                         {/* "Create an Account" button */}
                         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: 16 }}>
-                        <Typography variant="body2" style={{ marginRight: 8 }}>
-                            Don't have an account?
-                        </Typography>
-                        <Button
-                            variant="outlined"
-                            color="primary"
-                            onClick={this.registerClicked}
-                        >
-                            Register Now
-                        </Button>
-                    </div>
-
+                            <Typography variant="body2" style={{ marginRight: 8 }}>
+                                Don't have an account?
+                            </Typography>
+                            <Button
+                                variant="outlined"
+                                color="primary"
+                                onClick={this.registerClicked}
+                            >
+                                Register Now
+                            </Button>
+                        </div>
                     </form>
                 </div>
             </Container>

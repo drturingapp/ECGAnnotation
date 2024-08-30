@@ -99,7 +99,7 @@ export default class MainContainer extends React.Component {
                 acquisitionDateTime: '',
                 sampleBase: 0
             },
-            annotatorID: this.props.history.location.state.detail,
+            annotatorID: this.props.history?.location?.state?.detail,
             annotations_all: []
         }
 
@@ -708,22 +708,30 @@ export default class MainContainer extends React.Component {
                 />
 
                 <div className={styles.container}>
-                    <div className={styles.headerGrid}>
-                        <Header annID={this.state.annotatorID}/>
-                        <div className={styles.directions}>
-                            <h2 className={styles.directionText}>Please select a file from the dropdown below</h2>
+                <div className={styles.headerGrid}>
+                    <Header annID={this.state.annotatorID}/>
+                    <div className={styles.directions}>
+                        <h2 className={styles.directionText}>Please select a file from the dropdown below</h2>
+                        {/* Dropdown and Upload File Button */}
+                        <div style={{ marginLeft: '500px', display: 'flex', justifyContent:'flex-end',alignItems: 'center', position:'absolute' }}>
+                            <a href="/upload" style={{ textDecoration: 'none', cursor: 'pointer',marginTop:'2px',marginLeft:'200px',padding:'25px' }}>
+                            Upload a File
+                            </a>
                         </div>
                     </div>
+                </div>
                     <div className={styles.metadataGrid}>
-                        <Metadata metadata= {this.state.metadata}/>
-                        <LoadData annotatorID={this.state.annotatorID} callBack={this.dataCallBack} className={styles.loadData}/>
+                        <Metadata metadata={this.state.metadata} />
+                        <LoadData
+                            annotatorID={this.state.annotatorID}
+                            callBack={this.dataCallBack}
+                            className={styles.loadData}
+                        />
                     </div>
-
-
-
-
+                    
                     <div style={radioStyle} onChange={(e) => this.changeForm(e.target.value)}>
-                        <div style={{position:'absolute', fontWeight: 'bold'}}>ADD</div>
+                        {/* Radio button section */}
+                        <div style={{ position: 'absolute', fontWeight: 'bold' }}>ADD</div>
                         <br />
                         <div style={{position:'absolute', color: colorP, marginTop: 0}}>
                             <input type="radio" ref={this.pRef} value="0" name="annotation"/> P

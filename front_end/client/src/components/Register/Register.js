@@ -29,7 +29,8 @@ class Register extends React.Component {
             usernameError: '',
             passwordError: '',
             confirmPasswordError: '',
-            generalError: '' // General error message for overall registration
+            generalError: '', // General error message for overall registration,
+            successMessage: '' // Add this line
         };
 
         this.handleChange = this.handleChange.bind(this);
@@ -65,7 +66,8 @@ class Register extends React.Component {
             usernameError: '',
             passwordError: '',
             confirmPasswordError: '',
-            generalError: ''
+            generalError: '',
+            successMessage: '' // Clear success message
         });
 
         // Validate fields
@@ -95,6 +97,7 @@ class Register extends React.Component {
                 console.log("🚀 ~ Register ~ handleRegister ~ response:", response)
 
                 if (response.data.status===200) {
+                    this.setState({ successMessage: 'Registration successful!' }); // Set success message
                     this.props.history.push('/');
                 } else {
                     // Set specific errors based on the message
@@ -225,6 +228,11 @@ class Register extends React.Component {
                         >
                             Register
                         </Button>
+                        {this.state.successMessage && (
+                        <Typography variant="body2" color="textSecondary" className="success-message">
+                            {this.state.successMessage}
+                        </Typography>
+                       )}
                         <div className="login-link">
                             <Typography variant="body2" color="textSecondary">
                                 Already have an account?{' '}

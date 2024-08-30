@@ -18,6 +18,8 @@ import MainContainerReadOnly from "./components/MainContainer/MainContainerReadO
 import Register from './components/Register/Register';
 import ForgotPassword from './components/ForgotPassword/ForgotPassword';
 import ResetPassword from './components/ResetPassword/ResetPassword';
+import UploadFilePage from './components/uploadFilePage/uploadFilePage';
+import VerifyEmail from './components/VerifyEmail/verifyEmail';
 
 ReactDOM.render(
 
@@ -31,7 +33,8 @@ ReactDOM.render(
             <Route exact path="/register" component={Register}/>
             <Route exact path="/forgot-password" component={ForgotPassword}/>
             <Route exact path="/reset-password" component={ResetPassword}/>
-
+            <Route exact path="/upload" component={UploadFilePage}/>
+            <Route exact path="/verify-email" component={VerifyEmail}/>
         </div>
     </BrowserRouter>
     ,

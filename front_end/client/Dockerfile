@@ -13,14 +13,17 @@ RUN apt-get update && apt-get install -y \
   libgif-dev \
   librsvg2-dev
 
-  # Set the NODE_OPTIONS environment variable
+# Set the NODE_OPTIONS environment variable
 ENV NODE_OPTIONS=--openssl-legacy-provider
 
-# Copy the entire frontend directory into the container
-COPY . .
+# Copy package.json and package-lock.json (if exists)
+COPY package*.json ./
 
 # Install the dependencies
 RUN npm install --loglevel=error
+
+# Copy the rest of the frontend directory into the container
+COPY . .
 
 # Build the React.js application
 RUN npm run build
@@ -28,5 +31,8 @@ RUN npm run build
 # Expose the port that the application listens on
 EXPOSE 3001
 
-# Start a simple web server to serve the built React.js files
-CMD [ "npx", "serve", "-s", "build" ]
+# Install the serve dependencies
+RUN npm install -g serve
+
+# Start a simple web server to serve the built React.js files on port 3001
+CMD ["serve", "-s", "build"]

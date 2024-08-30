@@ -1,0 +1,3 @@
+# Project exclude paths
+/back_end/node_modules/*
+*.bak

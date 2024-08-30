@@ -3,7 +3,6 @@ const cors = require('cors');
 const mysql = require('mysql2');
 const basicAuth = require('express-basic-auth');
 const app = express();
-var bodyParser = require('body-parser');
 
 require('dotenv').config();
 
@@ -14,16 +13,32 @@ const bcrypt = require('bcrypt');
 const saltRounds = 10;
 const crypto = require('crypto');
 
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
+const { sendEmail } = require('./helpers/sendEmail');
+
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        const uploadDir = path.join(__dirname, 'uploads');
+        if (!fs.existsSync(uploadDir)) {
+            fs.mkdirSync(uploadDir);
+        }
+        cb(null, uploadDir);
+    },
+    filename: function (req, file, cb) {
+        cb(null, Date.now() + path.extname(file.originalname));
+    }
+});
+
+const upload = multer({ storage: storage });
+
 
 let retryCount = 0;
 
-// Use body-parser middleware with extended option
-app.use(bodyParser.json({ extended: true }));
-app.use(bodyParser.urlencoded({ extended: true }));
-
 app.use(cors());
 app.use(express.json());       // to support JSON-encoded bodies
-app.use(express.urlencoded()); // to support URL-encoded bodies
+app.use(express.urlencoded({extended:true})); // to support URL-encoded bodies
 
 const mysqlConfig = {
     host: process.env.DB_HOST || 'localhost',
@@ -65,6 +80,10 @@ const authMiddleware = async (req, res, next) => {
         // Log the stored password hash
         console.log('Stored Hashed Password: ', user.password);
 
+        // Check if the email is verified
+        if (!user.isVerified) {
+            return res.status(403).json({ status: 403, success: false, msg: 'Please verify your email before signing in.' });
+        }
         const isPasswordValid = await bcrypt.compare(password, user.password);
         console.log('Password Valid:', isPasswordValid);
 
@@ -149,13 +168,26 @@ const createTables = () => {
             PointIndex INT,
             PointType VARCHAR(255)
         )`;
-    const createUserTable = `
+        const createUserTable = `
         CREATE TABLE IF NOT EXISTS Users (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        username VARCHAR(255) UNIQUE,
-        email VARCHAR(255) UNIQUE,
-        password VARCHAR(255)
-     )`;
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            username VARCHAR(255) UNIQUE NOT NULL,
+            email VARCHAR(255) UNIQUE NOT NULL,
+            password VARCHAR(255) NOT NULL,
+            verificationToken VARCHAR(255) DEFAULT NULL,
+            isVerified BOOLEAN DEFAULT FALSE,
+            createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    `;
+        const createEcgPatientInfoTable = `
+        CREATE TABLE IF NOT EXISTS ecg_patient_info (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            filePath VARCHAR(255) NOT NULL,
+            age INT NOT NULL,
+            gender ENUM('male', 'female') NOT NULL,
+            createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    `;
 
     connection.query(createCommentsTable, (err, results) => {
         if (err) {
@@ -192,6 +224,13 @@ const createTables = () => {
         }
         console.log('User table created successfully');
     });
+    connection.query(createEcgPatientInfoTable, (err, results) => {
+        if (err) {
+            console.error(err);
+            return;
+        }
+        console.log('ecg_patient_info table created successfully');
+    });
 };
 
 // Initialize the database and create tables
@@ -218,6 +257,8 @@ app.post('/register', (req, res) => {
                 return res.status(400).json({ status: 400, msg: 'Email already exists.' });
             }
         }
+        // Generate a verification token
+        const verificationToken = crypto.randomBytes(32).toString('hex');
 
         // Hash the password
         bcrypt.hash(password, saltRounds, (err, hashedPassword) => {
@@ -226,17 +267,49 @@ app.post('/register', (req, res) => {
                 return res.status(500).json({ status: 500, msg: 'Error hashing password.' });
             }
 
-            const INSERT_USER_QUERY = 'INSERT INTO Users (username, email, password) VALUES (?, ?, ?)';
-            connection.query(INSERT_USER_QUERY, [username, email, hashedPassword], (err, results) => {
+            const INSERT_USER_QUERY = 'INSERT INTO Users (username, email, password, verificationToken, isVerified) VALUES (?, ?, ?, ?, ?)';
+            connection.query(INSERT_USER_QUERY, [username, email, hashedPassword, verificationToken, false], (err, results) => {
                 if (err) {
                     console.log(err);
                     return res.status(500).json({ status: 500, msg: 'Failed to register user.' });
                 } else {
                     console.log('User registered:', results);
-                    return res.status(200).json({ status: 200, msg: 'User registered successfully.' });
+                    // Send welcome email
+                    const verificationLink = `http://localhost:3001/verify-email?token=${verificationToken}`;
+                    sendEmail(email, 'Verify Your Email', 'verifyEmail', { username, verificationLink })
+                    .then(() => {
+                        return res.status(200).json({ status: 200, msg: 'User registered successfully.' });
+                        }) 
+                    .catch(error => {
+                    console.error('Error sending email:', error);
+                        return res.status(500).json({ status: 500, msg: 'User registered but failed to send email.' });
+                });
                 }
             });
         });
+    });
+});
+
+
+app.get('/verify-email', (req, res) => {
+    const { token } = req.query;
+
+    if (!token) {
+        return res.status(400).json({ status: 400, msg: 'Verification token is missing.' });
+    }
+
+    // Verify token and activate user
+    connection.query('UPDATE Users SET isVerified = true, verificationToken = NULL WHERE verificationToken = ?', [token], (err, results) => {
+        if (err) {
+            console.log(err);
+            return res.status(500).json({ status: 500, msg: 'Database query failed.' });
+        }
+
+        if (results.affectedRows === 0) {
+            return res.status(400).json({ status: 400, msg: 'Invalid or expired token.' });
+        }
+
+        return res.status(200).json({ status: 200, msg: 'Email verified successfully. You can now sign in.' });
     });
 });
 
@@ -576,6 +649,36 @@ app.get('/api/getList', (req,res) => {
     var list = ["item1", "item2", "item3"];
     res.json(list);
     console.log('Sent list of items');
+});
+
+app.post('/upload', upload.single('file'), (req, res) => {
+    if (!req.file) {
+        return res.status(400).json({ status: 400, msg: 'No file uploaded' });
+    }
+
+    const { age, gender } = req.body;
+    const filePath = req.file.path;
+
+    if (!age || !gender) {
+        return res.status(400).json({ status: 400, msg: 'Age and gender are required' });
+    }
+
+    if (!['male', 'female'].includes(gender)) {
+        return res.status(400).json({ status: 400, msg: 'Invalid gender' });
+    }
+
+    const insertQuery = `
+        INSERT INTO ecg_patient_info (filePath, age, gender)
+        VALUES (?, ?, ?)
+    `;
+
+    connection.query(insertQuery, [filePath, parseInt(age, 10), gender], (err, results) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ status: 500, msg: 'Database insertion error' });
+        }
+        res.status(200).json({ status: 200, msg: 'File uploaded and data saved successfully', file: req.file });
+    });
 });
 
 // Starting the server

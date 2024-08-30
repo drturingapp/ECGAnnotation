@@ -1,0 +1,77 @@
+/* Container styling */
+.upload-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background-color: #f9f9f9;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+  }
+  
+  /* Heading styling */
+  h1 {
+    font-size: 28px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: #333;
+  }
+  
+  /* File input styling */
+  .file-input {
+    margin-bottom: 20px;
+    border: 1px solid #ddd;
+    padding: 10px;
+    border-radius: 4px;
+    background-color: #fff;
+    width: 100%;
+    max-width: 400px;
+  }
+  
+  /* Upload button styling */
+  .upload-button {
+    padding: 12px 24px;
+    font-size: 16px;
+    font-weight: 500;
+    color: #fff;
+    background-color: #007bff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    width: 100%;
+    max-width: 400px;
+  }
+  
+  .upload-button:disabled {
+    background-color: #6c757d;
+    cursor: not-allowed;
+  }
+  
+  .upload-button:hover:not(:disabled) {
+    background-color: #0056b3;
+    transform: translateY(-2px);
+  }
+  
+  .upload-button:active:not(:disabled) {
+    background-color: #004085;
+    transform: translateY(0);
+  }
+  
+  /* Message styling */
+  .success-message {
+    color: #28a745;
+    font-size: 16px;
+    font-weight: 500;
+    margin-top: 15px;
+  }
+  
+  .error-message {
+    color: #dc3545;
+    font-size: 16px;
+    font-weight: 500;
+    margin-top: 15px;
+  }
+  

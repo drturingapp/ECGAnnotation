@@ -4,23 +4,13 @@ import styles from "./MainContainer.module.scss";
 //import grid_styles from "../Grid/Grid.module.scss"
 //import control_styles from "../ControlPanel/ControlPanel.module.scss"
 import Grid from "../Grid/Grid";
-import GridItemAdmin from "../Grid/GridItem/GridItemAdmin";
 import Metadata from "../Metadata/Metadata";
 import metaData from "../Metadata/meta.csv"
 import LoadData from "../LoadData/LoadData";
 import Header from "../Header/Header";
-import Graph from "../Graph"
 //import ControlPanel from "../ControlPanel/ControlPanel";
 import * as d3 from 'd3';
-//import Canvas from 'canvas'
-//import { fontWeight } from "@material-ui/system";
 import  KeyHandler,{ KEYPRESS } from 'react-key-handler';
-import {SketchField, Tools} from "react-sketch";
-import Typography from "@material-ui/core/Typography";
-import TextField from "@material-ui/core/TextField";
-import Button from "@material-ui/core/Button";
-import Container from "@material-ui/core/Container";
-import axios from "axios";
 import GridItemReadOnly from "../Grid/GridItem/GridItemReadOnly";
 let data = "";
 
@@ -49,7 +39,6 @@ let colorSlur = 'rgb(195, 255, 31)'
 
 
 let colorDisagFirst = 'rgb(63, 224, 208)';
-let colorDisagSecond = 'rgb(63, 224, 208)';
 
 /**
  * The MainContainer component is the outermost component in the heirarchy and contains the Grid,

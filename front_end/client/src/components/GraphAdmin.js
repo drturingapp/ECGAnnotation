@@ -3,7 +3,6 @@ import {Scatter} from 'react-chartjs-2';
 import * as d3 from 'd3';
 import Axios from 'axios';
 import {SketchField, Tools} from 'react-sketch';
-import { Line } from 'react-lineto';
 
 // Set constant colors here
 let lightOpacity = .2;

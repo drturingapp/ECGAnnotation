@@ -3,13 +3,6 @@ import React from "react";
 // In order to use it in App.js, we have to import it. Note that you don't
 // need to add .js to the file name at the end (so the last part doesn't have
 // to be /MainContainer.js)
-import MainContainer from "./components/MainContainer/MainContainer";
-import Login from "./components/Login/Login";
-import SignIn from "./components/Login/SignIn";
-import LoginSecond from "./components/Login/LoginSecond";
-import LoginThird from "./components/Login/LoginThird";
-//import LoadData from "./components/LoadData/LoadData";
-
 class App extends React.Component {
 
 	render() {

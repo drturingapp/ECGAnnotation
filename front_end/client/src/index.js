@@ -1,14 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-import App from './App';
-
-import { Router} from 'react-router';
-//import hashHistory from 'react-router-dom'
-//import history from 'react-router-dom'
-import routes from './routes';
-
-import { BrowserRouter, Link, Route } from 'react-router-dom';
+import { BrowserRouter, Route } from 'react-router-dom';
 
 import Login from './components/Login/LoginSecond';
 import MainContainer from './components/MainContainer/MainContainer';

@@ -3,8 +3,10 @@ const cors = require('cors');
 const mysql = require('mysql2');
 const basicAuth = require('express-basic-auth');
 const app = express();
-
+const jwt = require('jsonwebtoken');
 require('dotenv').config();
+
+const secretKey = process.env.SECRET_KEY // Replace with your own secret key
 
 const MAX_RETRIES = 10;
 const RETRY_DELAY = 5000; // 5 seconds
@@ -170,14 +172,15 @@ const createTables = () => {
         )`;
         const createUserTable = `
         CREATE TABLE IF NOT EXISTS Users (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            username VARCHAR(255) UNIQUE NOT NULL,
-            email VARCHAR(255) UNIQUE NOT NULL,
-            password VARCHAR(255) NOT NULL,
-            verificationToken VARCHAR(255) DEFAULT NULL,
-            isVerified BOOLEAN DEFAULT FALSE,
-            createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        username VARCHAR(255) UNIQUE NOT NULL,
+        email VARCHAR(255) UNIQUE NOT NULL,
+        password VARCHAR(255) NOT NULL,
+        verificationToken VARCHAR(255) DEFAULT NULL,
+        isVerified BOOLEAN DEFAULT FALSE,
+        createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        token TEXT
+    )
     `;
         const createEcgPatientInfoTable = `
         CREATE TABLE IF NOT EXISTS ecg_patient_info (
@@ -326,13 +329,59 @@ app.get('/authenticate', authMiddleware, (req, res) => {
         }
 
         if (results.length === 0) {
-            return res.send('Unknown user');
+            return res.status(404).send('Unknown user');
         }
 
         const userId = results[0].id;
-        res.send({data:1});
+
+        // Create JWT token
+        const token = jwt.sign({ userId, username }, secretKey, {});
+
+        // Save the token in the Users table
+        const updateTokenQuery = 'UPDATE Users SET token = ? WHERE id = ?';
+        connection.query(updateTokenQuery, [token, userId], (err, result) => {
+            if (err) {
+                return res.status(500).send('Failed to save token');
+            }
+            res.send({ data: 1, token });
+        });
     });
+})
+
+app.post('/logout', (req, res) => {
+    const token = req.headers.authorization?.split(' ')[1]; // Extract the token from the Authorization header
+    if (!token) {
+        return res.status(401).send('No token provided');
+    }
+
+    try {
+        // Decode the token to get the username
+        const decoded = jwt.verify(token, secretKey);
+        const username = decoded.username; // Assuming the token contains the username
+        
+        console.log('Logout username: ', username);
+
+        // Remove the token from the database
+        const removeTokenQuery = 'UPDATE Users SET token = NULL WHERE username = ?';
+        connection.query(removeTokenQuery, [username], (err, result) => {
+            console.log('result: ', result);
+            if (err) {
+                return res.status(500).send('Failed to remove token');
+            }
+
+            if (result.affectedRows === 0) {
+                return res.status(404).send('User not found');
+            }
+
+            res.send({ success: true, message: 'Logged out successfully' });
+        });
+
+    } catch (err) {
+        console.error('Failed to verify token:', err);
+        return res.status(401).send('Invalid token');
+    }
 });
+
 
 // Example in-memory token storage
 let passwordResetTokens = {}; 

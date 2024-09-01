@@ -20,13 +20,14 @@ import ForgotPassword from './components/ForgotPassword/ForgotPassword';
 import ResetPassword from './components/ResetPassword/ResetPassword';
 import UploadFilePage from './components/uploadFilePage/uploadFilePage';
 import VerifyEmail from './components/VerifyEmail/verifyEmail';
+import PrivateRoute from './components/protectedRoutes/loginProtected';
 
 ReactDOM.render(
 
     <BrowserRouter basename={'ECGAnnotation'}>
         <div>
             <Route exact path="/" component={Login}/>
-            <Route path="/mainContainer" component={MainContainer} />
+            <PrivateRoute path="/mainContainer" component={MainContainer} />
             <Route path="/mainContainerAdmin" component={MainContainerAdmin} />
             <Route path="/mainContainerAnnChecker" component={MainContainerAnnChecker} />
             <Route path="/mainContainerReadOnly" component={MainContainerReadOnly} />

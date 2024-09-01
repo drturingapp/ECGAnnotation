@@ -21,6 +21,7 @@ import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
 import Container from "@material-ui/core/Container";
 import axios from "axios";
+import Modal from '../modal/uploadModal'; // Import the Modal component
 let data = "";
 
 // Set constant colors here
@@ -35,6 +36,8 @@ let colorT = 'rgb(6, 82, 221)';
 let colorT2 = 'rgb(18, 137, 167)';
 let colorOn = 'rgb(27, 20, 100)';
 let colorOff = 'rgb(111, 30, 81)';
+
+let serverURL = "http://localhost:3000/";
 
 /**
  * The MainContainer component is the outermost component in the heirarchy and contains the Grid,
@@ -100,7 +103,15 @@ export default class MainContainer extends React.Component {
                 sampleBase: 0
             },
             annotatorID: this.props.history?.location?.state?.detail,
-            annotations_all: []
+            annotations_all: [],
+            showModal: false,
+            file: null,
+            age: '',
+            gender: '',
+            uploading: false,
+            message: '',
+            messageType: '',
+            logoutMessage: '', // State to hold the logout message
         }
 
         this.createBackgroundImage(250) // Start with a default frequency of 250
@@ -631,7 +642,55 @@ export default class MainContainer extends React.Component {
         this.comment = value;
     }
 
-    render() {
+    handleFileChange = (e) => {
+        this.setState({ file: e.target.files[0], message: '' });
+      };
+    
+      handleAgeChange = (e) => {
+        this.setState({ age: e.target.value });
+      };
+    
+      handleGenderChange = (e) => {
+        this.setState({ gender: e.target.value });
+      };
+    
+      handleUpload = async () => {
+        const { file, age, gender } = this.state;
+        if (!file || !age || !gender) {
+          this.setState({ message: 'Please select a file and provide age and gender.', messageType: 'error' });
+          return;
+        }
+    
+        this.setState({ uploading: true, message: '', messageType: '' });
+    
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('age', age);
+        formData.append('gender', gender);
+    
+        try {
+          await axios.post(serverURL + 'upload', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+          });
+          this.setState({ message: 'File uploaded successfully!', messageType: 'success' });
+          this.setState({ file: null, age: '', gender: '' });
+        } catch (err) {
+          this.setState({ message: 'Failed to upload file.', messageType: 'error' });
+        } finally {
+          this.setState({ uploading: false });
+        }
+      };
+
+      openModal = () => {
+        this.setState({ showModal: true });
+      };
+      
+      closeModal = () => {
+        this.setState({ showModal: false });
+      };    
+      render() {
+        const { showModal } = this.state;
+
         // Style json for radio button
         const radioStyle= {
             position: 'sticky',
@@ -643,7 +702,43 @@ export default class MainContainer extends React.Component {
             fontWeight: 'bold'
         };
 
-        return (
+        // Function to handle logout
+        const handleLogout = () => {
+            console.log("Logout clicked");
+
+            // Get the token from localStorage
+            const token = localStorage.getItem('token');
+            console.log('token: ', token);
+
+            if (!token) {
+                console.error('No token found');
+                this.setState({ logoutMessage: 'No token found!' });
+                return;
+            }
+
+            // Call the logout API to remove the token from the server/database
+            axios.post(serverURL + 'logout', {}, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            })
+            .then((response) => {
+                console.log('Logout response:', response.data);
+
+                // Remove the token from localStorage
+                localStorage.removeItem('token');
+                this.setState({ logoutMessage: 'Logout successful!' });
+
+                // Redirect to the login page
+                window.location.href = '/';
+            })
+            .catch(err => {
+                console.error('Logout failed:', err);
+                this.setState({ logoutMessage: 'Logout failed!' });
+            });
+        };
+
+        return (            
             <React.Fragment>
 
                 <KeyHandler
@@ -708,18 +803,42 @@ export default class MainContainer extends React.Component {
                 />
 
                 <div className={styles.container}>
-                <div className={styles.headerGrid}>
-                    <Header annID={this.state.annotatorID}/>
-                    <div className={styles.directions}>
-                        <h2 className={styles.directionText}>Please select a file from the dropdown below</h2>
-                        {/* Dropdown and Upload File Button */}
-                        <div style={{ marginLeft: '500px', display: 'flex', justifyContent:'flex-end',alignItems: 'center', position:'absolute' }}>
-                            <a href="/upload" style={{ textDecoration: 'none', cursor: 'pointer',marginTop:'2px',marginLeft:'200px',padding:'25px' }}>
-                            Upload a File
-                            </a>
+                    {/* Top section with Logout and Upload a File links */}
+                    <div style={{
+                        display: 'flex', 
+                        justifyContent:'space-between',
+                        position: 'relative', 
+                        width: '15%',
+                        margin:'10px',
+                        fontSize:'20px'
+                    }}>
+                         <a href="/upload" onClick={{}} style={{ textDecoration: 'none',marginLeft:'10px', cursor: 'pointer', fontWeight: 'bold', color: '#007bff' }}>
+                            Upload File
+                        </a>
+                        <a href="/" onClick={handleLogout} style={{ textDecoration: 'none', cursor: 'pointer', fontWeight: 'bold', color: '#dc3545' }}>
+                            Logout
+                            {/* Logout message */}
+                            {this.state.logoutMessage && (
+                                <div style={{ marginTop: '10px', color: this.state.logoutMessage.includes('successful') ? 'green' : 'red' }}>
+                                    {this.state.logoutMessage}
+                                </div>
+                            )}
+                        </a>
+                    </div>
+
+                    <div className={styles.headerGrid}>
+                    <Modal show={showModal} onClose={this.closeModal}>
+                    <input type="file" onChange={(e) => this.setState({ file: e.target.files[0] })} />
+                    <button onClick={this.closeModal}>Close</button>
+                    </Modal>
+
+                        <Header annID={this.state.annotatorID}/>
+                        <div className={styles.directions}>
+                            <h2 className={styles.directionText}>Please select a file from the dropdown below</h2>
+                            {/* Dropdown and Upload File Button */}
                         </div>
                     </div>
-                </div>
+
                     <div className={styles.metadataGrid}>
                         <Metadata metadata={this.state.metadata} />
                         <LoadData

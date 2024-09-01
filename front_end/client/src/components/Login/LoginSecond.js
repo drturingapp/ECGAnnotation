@@ -58,6 +58,11 @@ class LoginSecond extends React.Component {
         axios.get(serverURL + 'authenticate', { mode: 'no-cors', auth: { username, password } })
             .then(response => {
                 console.log('Here');
+                if (response.data.token) {
+                    // Save token to localStorage or cookies
+                    localStorage.setItem('token', response.data.token);
+                    this.props.history.push('/mainContainer');
+                }
                 if (response.data.status === 403) {
                     // If email is not verified, show the message
                     this.setState({ errorMessage: response.data.msg });

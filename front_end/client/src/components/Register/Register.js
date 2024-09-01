@@ -127,7 +127,7 @@ class Register extends React.Component {
     }
 
     handleLoginRedirect() {
-        this.props.history.push('/');
+        this.props.history.push('/#/');
     }
 
     render() {

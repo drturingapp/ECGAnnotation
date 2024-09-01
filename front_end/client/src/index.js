@@ -16,23 +16,19 @@ import VerifyEmail from './components/VerifyEmail/verifyEmail';
 import PrivateRoute from './components/protectedRoutes/loginProtected';
 
 ReactDOM.render(
-
-    <BrowserRouter basename={'ECGAnnotation'}>
+    <BrowserRouter basename={'/'}>
         <div>
             <Route exact path="/" component={Login}/>
             <PrivateRoute path="/mainContainer" component={MainContainer} />
-            <Route path="/mainContainerAdmin" component={MainContainerAdmin} />
-            <Route path="/mainContainerAnnChecker" component={MainContainerAnnChecker} />
-            <Route path="/mainContainerReadOnly" component={MainContainerReadOnly} />
+            <PrivateRoute path="/mainContainerAdmin" component={MainContainerAdmin} />
+            <PrivateRoute path="/mainContainerAnnChecker" component={MainContainerAnnChecker} />
+            <PrivateRoute path="/mainContainerReadOnly" component={MainContainerReadOnly} />
             <Route exact path="/register" component={Register}/>
             <Route exact path="/forgot-password" component={ForgotPassword}/>
             <Route exact path="/reset-password" component={ResetPassword}/>
-            <Route exact path="/upload" component={UploadFilePage}/>
+            <PrivateRoute exact path="/upload" component={UploadFilePage}/>
             <Route exact path="/verify-email" component={VerifyEmail}/>
         </div>
-    </BrowserRouter>
-    ,
+    </BrowserRouter>,
     document.getElementById('root')
-
 );
-

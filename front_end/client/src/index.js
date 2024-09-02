@@ -16,7 +16,7 @@ import VerifyEmail from './components/VerifyEmail/verifyEmail';
 import PrivateRoute from './components/protectedRoutes/loginProtected';
 
 ReactDOM.render(
-    <BrowserRouter basename={'/'}>
+    <BrowserRouter basename={'/#/'}>
         <div>
             <Route exact path="/" component={Login}/>
             <PrivateRoute path="/mainContainer" component={MainContainer} />

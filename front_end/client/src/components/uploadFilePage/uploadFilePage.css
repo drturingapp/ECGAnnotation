@@ -32,6 +32,7 @@
   
   /* Upload button styling */
   .upload-button {
+    margin-top: 10px;
     padding: 12px 24px;
     font-size: 16px;
     font-weight: 500;
@@ -40,9 +41,11 @@
     border: none;
     border-radius: 5px;
     cursor: pointer;
+    align-self  : center;
     transition: background-color 0.3s ease, transform 0.2s ease;
-    width: 100%;
-    max-width: 400px;
+    width: 50%;
+    margin-left: 25%;
+    max-width: 600px;
   }
   
   .upload-button:disabled {

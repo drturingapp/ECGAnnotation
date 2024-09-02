@@ -23,10 +23,10 @@ COPY package*.json ./
 RUN npm install --loglevel=error
 
 # Copy the rest of the frontend directory into the container
-#COPY . .
+COPY . .
 
 # Build the React.js application
-RUN rm -rf /app/build
+#RUN rm -rf /app/build
 RUN npm run build
 
 # Expose the port that the application listens on

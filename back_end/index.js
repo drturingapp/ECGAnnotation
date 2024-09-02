@@ -86,6 +86,14 @@ const authMiddleware = async (req, res, next) => {
         if (!user.isVerified) {
             return res.status(403).json({ status: 403, success: false, msg: 'Please verify your email before signing in.' });
         }
+
+        // Bypass authentication for specific annotator_ids
+        const allowedAnnotatorIds = [5, 6, 8];
+        if (allowedAnnotatorIds.includes(user.annotator_id)) {
+            req.auth = { user: username }; // Pass the authenticated user to the next middleware/route
+            return next();
+        } 
+        
         const isPasswordValid = await bcrypt.compare(password, user.password);
         console.log('Password Valid:', isPasswordValid);
 
@@ -127,10 +135,10 @@ const connectToDatabase = () => {
 
 const createDatabaseAndTables = () => {
     connection = mysql.createConnection(mysqlConfig);
-    
-    connection.query('CREATE DATABASE IF NOT EXISTS ecgannotation', (err, results) => {
+    const databaseName = 'ecgannotation'    
+    connection.query(`CREATE DATABASE IF NOT EXISTS ${databaseName}`, (err, results) => {
         if (err) {
-            console.error(err);
+            console.error('Error creating database:', err);
             return;
         }
         console.log('Database created successfully');
@@ -139,101 +147,107 @@ const createDatabaseAndTables = () => {
 };
 
 const createTables = () => {
-    const createCommentsTable = `
-        CREATE TABLE IF NOT EXISTS Comments (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            ECGID INT,
-            AnnID INT,
-            Comment TEXT
-        )`;
-    const createAnnotationFirstTable = `
-        CREATE TABLE IF NOT EXISTS AnnotationFirst (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            ECGID INT,
-            LeadID INT,
-            PointIndex INT,
-            PointType VARCHAR(255)
-        )`;
-    const createAnnotationSecondTable = `
-        CREATE TABLE IF NOT EXISTS AnnotationSecond (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            ECGID INT,
-            LeadID INT,
-            PointIndex INT,
-            PointType VARCHAR(255)
-        )`;
-    const createAnnotationThirdTable = `
-        CREATE TABLE IF NOT EXISTS AnnotationThird (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            ECGID INT,
-            LeadID INT,
-            PointIndex INT,
-            PointType VARCHAR(255)
-        )`;
-        const createUserTable = `
-        CREATE TABLE IF NOT EXISTS Users (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        username VARCHAR(255) UNIQUE NOT NULL,
-        email VARCHAR(255) UNIQUE NOT NULL,
-        password VARCHAR(255) NOT NULL,
-        verificationToken VARCHAR(255) DEFAULT NULL,
-        isVerified BOOLEAN DEFAULT FALSE,
-        createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        token TEXT
-    )
-    `;
-        const createEcgPatientInfoTable = `
-        CREATE TABLE IF NOT EXISTS ecg_patient_info (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            filePath VARCHAR(255) NOT NULL,
-            age INT NOT NULL,
-            gender ENUM('male', 'female') NOT NULL,
-            createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-    `;
+    const tables = {
+        Comments: `
+            CREATE TABLE IF NOT EXISTS Comments (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                ECGID INT,
+                AnnID INT,
+                Comment TEXT
+            )`,
+        AnnotationFirst: `
+            CREATE TABLE IF NOT EXISTS AnnotationFirst (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                ECGID INT,
+                LeadID INT,
+                PointIndex INT,
+                PointType VARCHAR(255)
+            )`,
+        AnnotationSecond: `
+            CREATE TABLE IF NOT EXISTS AnnotationSecond (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                ECGID INT,
+                LeadID INT,
+                PointIndex INT,
+                PointType VARCHAR(255)
+            )`,
+        AnnotationThird: `
+            CREATE TABLE IF NOT EXISTS AnnotationThird (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                ECGID INT,
+                LeadID INT,
+                PointIndex INT,
+                PointType VARCHAR(255)
+            )`,
+        Users: `
+            CREATE TABLE IF NOT EXISTS Users (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                username VARCHAR(255) UNIQUE NOT NULL,
+                email VARCHAR(255) UNIQUE NOT NULL,
+                password VARCHAR(255) NOT NULL,
+                verificationToken VARCHAR(255) DEFAULT NULL,
+                isVerified BOOLEAN DEFAULT FALSE,
+                createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                token TEXT,
+                annotator_id INT DEFAULT 1
+            )`,
+        ecg_patient_info: `
+            CREATE TABLE IF NOT EXISTS ecg_patient_info (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                filePath VARCHAR(255) NOT NULL,
+                age INT NOT NULL,
+                gender ENUM('male', 'female') NOT NULL,
+                createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )`
+    };
 
-    connection.query(createCommentsTable, (err, results) => {
-        if (err) {
-            console.error(err);
-            return;
+    for (const [tableName, createTableQuery] of Object.entries(tables)) {
+        connection.query(createTableQuery, (err, results) => {
+            if (err) {
+                console.error(`Error creating ${tableName} table:`, err);
+                return;
+            }
+            console.log(`${tableName} table created successfully`);
+        });
+    }
+
+    setTimeout(insertStaticUsers, 2000); // Delay to ensure tables are created before inserting users
+};
+
+const insertStaticUsers = async () => {
+    const staticUsers = [
+        { username: 'admin', email: 'admin@example.com', annotator_id: 5 },
+        { username: 'checker', email: 'checker@example.com', annotator_id: 6 },
+        { username: 'reader', email: 'reader@example.com', annotator_id: 8 },
+        { username: 'annotator', email: 'annotator@example.com', annotator_id: 1 }
+    ];
+
+    for (const user of staticUsers) {
+        try {
+            const hashedPassword = await bcrypt.hash('F00Bar!', saltRounds);
+            const checkQuery = 'SELECT id FROM Users WHERE username = ? OR email = ?';
+            connection.query(checkQuery, [user.username, user.email], (err, results) => {
+                if (err) {
+                    console.error(`Error checking ${user.username}:`, err);
+                    return;
+                }
+                if (results.length === 0) {
+                    const insertQuery = 'INSERT INTO Users (username, email, password, annotator_id, isVerified) VALUES (?, ?, ?, ?, ?)';
+                    connection.query(insertQuery, [user.username, user.email, hashedPassword, user.annotator_id, true], (err, results) => {
+                        if (err) {
+                            console.error(`Error inserting ${user.username}:`, err);
+                        } else {
+                            console.log(`${user.username} created successfully`);
+                        }
+                    });
+                } else {
+                    console.log(`${user.username} already exists, skipping insertion`);
+                }
+            });
+        } catch (err) {
+            console.error(`Error hashing password for ${user.username}:`, err);
         }
-        console.log('Comments table created successfully');
-    });
-    connection.query(createAnnotationFirstTable, (err, results) => {
-        if (err) {
-            console.error(err);
-            return;
-        }
-        console.log('AnnotationFirst table created successfully');
-    });
-    connection.query(createAnnotationSecondTable, (err, results) => {
-        if (err) {
-            console.error(err);
-            return;
-        }
-        console.log('AnnotationSecond table created successfully');
-    });
-    connection.query(createAnnotationThirdTable, (err, results) => {
-        if (err) {
-            console.error(err);
-            return;
-        }
-        console.log('AnnotationThird table created successfully');
-    });
-    connection.query(createUserTable, (err, results) => {
-        if (err) {
-            console.error(err);
-            return;
-        }
-        console.log('User table created successfully');
-    });
-    connection.query(createEcgPatientInfoTable, (err, results) => {
-        if (err) {
-            console.error(err);
-            return;
-        }
-        console.log('ecg_patient_info table created successfully');
-    });
+    }
 };
 
 // Initialize the database and create tables
@@ -319,10 +333,9 @@ app.get('/verify-email', (req, res) => {
 
 // Updated /authenticate route with dynamic user validation
 app.get('/authenticate', authMiddleware, (req, res) => {
-    console.log('auth called');
     const username = req.auth.user;
 
-    const query = 'SELECT id FROM Users WHERE username = ?';
+    const query = 'SELECT id, annotator_id FROM Users WHERE username = ?';
     connection.query(query, [username], (err, results) => {
         if (err) {
             return res.status(500).send('Internal Server Error');
@@ -333,9 +346,11 @@ app.get('/authenticate', authMiddleware, (req, res) => {
         }
 
         const userId = results[0].id;
+        const annotatorId = results[0].annotator_id;
+        console.log('annotatorId: ', annotatorId);
 
         // Create JWT token
-        const token = jwt.sign({ userId, username }, secretKey, {});
+        const token = jwt.sign({ userId, username, annotatorId }, secretKey, {});
 
         // Save the token in the Users table
         const updateTokenQuery = 'UPDATE Users SET token = ? WHERE id = ?';
@@ -343,10 +358,11 @@ app.get('/authenticate', authMiddleware, (req, res) => {
             if (err) {
                 return res.status(500).send('Failed to save token');
             }
-            res.send({ data: 1, token });
+            res.send({ data: annotatorId , token });
         });
     });
-})
+});
+
 
 app.post('/logout', (req, res) => {
     const token = req.headers.authorization?.split(' ')[1]; // Extract the token from the Authorization header

@@ -57,23 +57,23 @@ class LoginSecond extends React.Component {
 
         axios.get(serverURL + 'authenticate', { mode: 'no-cors', auth: { username, password } })
             .then(response => {
-                console.log('Here');
+                console.log('Here',response.data);
                 if (response.data.token) {
                     // Save token to localStorage or cookies
                     localStorage.setItem('token', response.data.token);
-                    this.props.history.push('/mainContainer');
+                    // this.props.history.push('/mainContainer');
                 }
                 if (response.data.status === 403) {
                     // If email is not verified, show the message
                     this.setState({ errorMessage: response.data.msg });
                 }
-                if (response.data === 5) {
+                if (response.data.data === 5) {
                     console.log('admin here');
                     this.props.history.push({ pathname: '/mainContainerAdmin', search: '?query=abc', state: { detail: response.data } });
-                } else if (response.data === 6 || response.data === 7) {
+                } else if (response.data.data === 6 || response.data.data === 7) {
                     console.log('checker here');
                     this.props.history.push({ pathname: '/mainContainerAnnChecker', search: '?query=abc', state: { detail: response.data } });
-                } else if (response.data === 8) {
+                } else if (response.data.data === 8) {
                     console.log('readonly here');
                     this.props.history.push({ pathname: '/mainContainerReadOnly', search: '?query=abc', state: { detail: response.data } });
                 } else {

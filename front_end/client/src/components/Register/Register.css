@@ -36,6 +36,11 @@
     margin-bottom: 16px;
     font-size: 0.875rem;
 }
+.success-message {
+    color: red; /* Change color to red */
+    font-weight: bold;
+    margin-top: 10px;
+}
 .register-container .login-link {
     display: flex;
     justify-content: center;

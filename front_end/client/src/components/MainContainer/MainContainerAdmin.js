@@ -55,6 +55,9 @@ let colorDisagSecond = 'rgb(63, 224, 208)';
  * Metadata, LoadData and Header components. Much of the setup for the application, parsing of CVS,
  * and data passing are done in this file
  */
+
+let serverURL = "http://localhost:3000/";
+
 export default class MainContainerAdmin extends React.Component {
 
     base64String = '';
@@ -97,6 +100,7 @@ export default class MainContainerAdmin extends React.Component {
         this.changeForm = this.changeForm.bind(this);
         this.submitClicked = this.submitClicked.bind(this);
         this.setComment = this.setComment.bind(this);
+        this.handleLogout = this.handleLogout.bind(this);
 
         // Set initial state
         this.state={
@@ -122,7 +126,8 @@ export default class MainContainerAdmin extends React.Component {
                 sampleBase: 0
             },
             annotatorID: this.props.history.location.state.detail,
-            annotations_all: []
+            annotations_all: [],
+            logoutMessage: '', // State to hold the logout message
         }
 
         this.createBackgroundImage(250) // Start with a default frequency of 250
@@ -730,7 +735,46 @@ export default class MainContainerAdmin extends React.Component {
         this.comment = value;
     }
 
+    handleLogout() {
+        console.log("Logout clicked");
+    
+        // Get the token from localStorage
+        const token = localStorage.getItem('token');
+        console.log('token: ', token);
+    
+        if (!token) {
+          console.error('No token found');
+          this.setState({ logoutMessage: 'No token found!' });
+          return;
+        }
+    
+        // Call the logout API to remove the token from the server/database
+        axios.post(serverURL + 'logout', {}, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        })
+        .then((response) => {
+          console.log('Logout response:', response.data);
+    
+          // Remove the token from localStorage
+          localStorage.removeItem('token');
+          const removedToken = localStorage.getItem('token');
+          console.log('Token after removal:', removedToken);
+          this.setState({ logoutMessage: 'Logout successful!' });
+          setTimeout(() => {
+            window.location.href = '/#/';
+        }, 500);
+        })
+            .catch(err => {
+                console.error('Logout failed:', err);
+                this.setState({ logoutMessage: 'Logout failed!' });
+            });
+    }
+
     render() {
+        const { age, gender, uploading, message, messageType, showModal } = this.state;
+
         // Style json for radio button
         const radioStyle= {
             position: 'sticky',
@@ -841,8 +885,49 @@ export default class MainContainerAdmin extends React.Component {
                     onKeyHandle={this.setRadioButton}
                 />
 
-                <div className={styles.container}>
+                    <div className={styles.container}>
+                    {/* Top section with Logout and Upload a File links */}
+                    <div style={{
+                        display: 'flex', 
+                        justifyContent:'space-between',
+                        position: 'relative', 
+                        width: '15%',
+                        margin:'10px',
+                        fontSize:'20px'
+                    }}>
+                    <div>
+                    <a
+                    href="#/"
+                    onClick={(e) => {
+                        e.preventDefault(); // Prevent default anchor behavior
+                        this.handleLogout();
+                    }}
+                    style={{
+                        textDecoration: 'none',
+                        cursor: 'pointer',
+                        fontWeight: 'bold',
+                        color: '#dc3545'
+                    }}
+                    >
+                    Logout
+                    </a>
+                        {/* Logout message */}
+                        {this.state.logoutMessage && (
+                        <div
+                            style={{
+                            marginTop: '10px',
+                            color: this.state.logoutMessage.includes('successful') ? 'green' : 'red'
+                            }}
+                        >
+                            {this.state.logoutMessage}
+                        </div>
+                        )}
+                    </div>
+                    </div>
+
                     <div className={styles.headerGrid}>
+
+
                         <Header annID={this.state.annotatorID}/>
                         <div className={styles.directions}>
                             <h2 className={styles.directionText}>Please select a file from the dropdown below</h2>

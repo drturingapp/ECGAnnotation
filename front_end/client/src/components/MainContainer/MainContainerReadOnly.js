@@ -10,10 +10,9 @@ import LoadData from "../LoadData/LoadData";
 import Header from "../Header/Header";
 //import ControlPanel from "../ControlPanel/ControlPanel";
 import * as d3 from 'd3';
+import axios from "axios";
 import  KeyHandler,{ KEYPRESS } from 'react-key-handler';
 import GridItemReadOnly from "../Grid/GridItem/GridItemReadOnly";
-import axios from "axios";
-import Modal from '../modal/uploadModal'; // Import the Modal component
 let data = "";
 
 // Set constant colors here
@@ -38,7 +37,7 @@ let colorM2 = 'rgb(55, 163, 210)'
 let colorEpsilon = 'rgb(247, 196, 165)'
 let colorSlur = 'rgb(195, 255, 31)'
 
-let serverURL = "http://localhost:3000/";
+
 
 let colorDisagFirst = 'rgb(63, 224, 208)';
 
@@ -47,6 +46,10 @@ let colorDisagFirst = 'rgb(63, 224, 208)';
  * Metadata, LoadData and Header components. Much of the setup for the application, parsing of CVS,
  * and data passing are done in this file
  */
+
+let serverURL = "http://localhost:3000/";
+
+
 export default class MainContainerReadOnly extends React.Component {
 
     base64String = '';
@@ -89,11 +92,6 @@ export default class MainContainerReadOnly extends React.Component {
         this.changeForm = this.changeForm.bind(this);
         this.submitClicked = this.submitClicked.bind(this);
         this.setComment = this.setComment.bind(this);
-        this.handleFileChange = this.handleFileChange.bind(this);
-        this.handleAgeChange = this.handleAgeChange.bind(this);
-        this.handleGenderChange = this.handleGenderChange.bind(this);
-        this.handleUpload = this.handleUpload.bind(this);
-        this.toggleModal = this.toggleModal.bind(this);
         this.handleLogout = this.handleLogout.bind(this);
 
         // Set initial state
@@ -119,15 +117,8 @@ export default class MainContainerReadOnly extends React.Component {
                 acquisitionDateTime: '',
                 sampleBase: 0
             },
-            annotatorID: this.props.history.location.state.detail,
+            annotatorID: this.props.history?.location?.state?.detail,
             annotations_all: [],
-            showModal: false,
-            file: null,
-            age: '',
-            gender: '',
-            uploading: false,
-            message: '',
-            messageType: '',
             logoutMessage: '', // State to hold the logout message
         }
 
@@ -736,66 +727,7 @@ export default class MainContainerReadOnly extends React.Component {
         this.comment = value;
     }
 
-    handleFileChange = (e) => {
-        this.setState({ file: e.target.files[0], message: '' });
-      };
-    
-      handleAgeChange = (e) => {
-        this.setState({ age: e.target.value });
-      };
-    
-      handleGenderChange = (e) => {
-        this.setState({ gender: e.target.value });
-      };
-    
-      async handleUpload() {
-        const { file, age, gender } = this.state;
-        if (!file || !age || !gender) {
-          this.setState({
-            message: 'Please select a file and provide age and gender.',
-            messageType: 'error',
-          });
-          return;
-        }
-    
-        this.setState({ uploading: true, message: '', messageType: '' });
-    
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('age', age);
-        formData.append('gender', gender);
-    
-        try {
-          await axios.post('http://localhost:3000/upload', formData, {
-            headers: {
-              'Content-Type': 'multipart/form-data',
-            },
-          });
-          this.setState({
-            message: 'File uploaded successfully!',
-            messageType: 'success',
-            file: null,
-            age: '',
-            gender: '',
-            uploading: false,
-          });
-    
-          // Close the modal after successful upload
-          setTimeout(() => this.toggleModal(false), 1000);
-        } catch (err) {
-          this.setState({
-            message: 'Failed to upload file.',
-            messageType: 'error',
-            uploading: false,
-          });
-        }
-      }
-    
-      toggleModal(show) {
-        this.setState({ showModal: show });
-      }
-    
-      handleLogout() {
+    handleLogout() {
         console.log("Logout clicked");
     
         // Get the token from localStorage
@@ -830,11 +762,9 @@ export default class MainContainerReadOnly extends React.Component {
                 console.error('Logout failed:', err);
                 this.setState({ logoutMessage: 'Logout failed!' });
             });
-        }
+    }
 
     render() {
-        const { age, gender, uploading, message, messageType, showModal } = this.state;
-
         // Style json for radio button
         const radioStyle= {
             position: 'sticky',
@@ -946,8 +876,7 @@ export default class MainContainerReadOnly extends React.Component {
                 />
 
                 <div className={styles.container}>
-                     {/* Top section with Logout and Upload a File links */}
-                     <div style={{
+                <div style={{
                         display: 'flex', 
                         justifyContent:'space-between',
                         position: 'relative', 
@@ -956,62 +885,6 @@ export default class MainContainerReadOnly extends React.Component {
                         fontSize:'20px'
                     }}>
                     <div>
-                    <a
-                        // href="#"
-                        onClick={() => this.toggleModal(true)}
-                        style={{
-                        textDecoration: 'none',
-                        cursor: 'pointer',
-                        padding: '10px',
-                        fontWeight: 'bold',
-                        color: '#007bff',
-                        }}
-                    >
-                        Upload File
-                    </a>
-
-                    <Modal show={showModal} onClose={() => this.toggleModal(false)}>
-                        <div className="">
-                        <button className="modal-close" onClick={() => this.toggleModal(false)}>&times;</button>
-                        <h1>Upload File</h1>
-                        <input
-                            type="number"
-                            value={age}
-                            onChange={this.handleAgeChange}
-                            placeholder="Age"
-                            className="input-field"
-                        />
-                        <select
-                            value={gender}
-                            onChange={this.handleGenderChange}
-                            className="input-field"
-                        >
-                            <option value="">Select Gender</option>
-                            <option value="male">Male</option>
-                            <option value="female">Female</option>
-                        </select>
-                        <input
-                            type="file"
-                            onChange={this.handleFileChange}
-                            className="input-field"
-                        />
-                        <button
-                            onClick={this.handleUpload}
-                            className="upload-button"
-                            disabled={uploading}
-                        >
-                            {uploading ? 'Uploading...' : 'Upload'}
-                        </button>
-                        {message && (
-                            <p className={messageType === 'success' ? 'success-message' : 'error-message'}>
-                            {message}
-                            </p>
-                        )}
-                        </div>
-                    </Modal>
-                    </div>
-
-                       <div>
                     <a
                     href="#/"
                     onClick={(e) => {
@@ -1040,6 +913,7 @@ export default class MainContainerReadOnly extends React.Component {
                         )}
                     </div>
                     </div>
+
                     <div className={styles.headerGrid}>
                         <Header annID={this.state.annotatorID}/>
                         <div className={styles.directions}>

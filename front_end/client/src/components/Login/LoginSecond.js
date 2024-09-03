@@ -57,7 +57,6 @@ class LoginSecond extends React.Component {
 
         axios.get(serverURL + 'authenticate', { mode: 'no-cors', auth: { username, password } })
             .then(response => {
-                console.log(this.props)
                 console.log('Here',response.data);
                 if (response.data.token) {
                     // Save token to localStorage or cookies
@@ -69,7 +68,7 @@ class LoginSecond extends React.Component {
                     this.setState({ errorMessage: response.data.msg });
                 }
                 if (response.data.data === 5) {
-                    console.log('admin here!');
+                    console.log('admin here');
                     this.props.history.push({ pathname: '/mainContainerAdmin', search: '?query=abc', state: { detail: response.data } });
                 } else if (response.data.data === 6 || response.data.data === 7) {
                     console.log('checker here');
@@ -80,7 +79,6 @@ class LoginSecond extends React.Component {
                 } else {
                     this.props.history.push({ pathname: '/mainContainer', search: '?query=abc', state: { detail: response.data } });
                 }
-                console.log(this.props)
             })
             .catch(err => {
                 if (err.response && err.response.data.status === 403) {

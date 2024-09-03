@@ -20,8 +20,7 @@ ENV NODE_OPTIONS=--openssl-legacy-provider
 COPY package*.json ./
 
 # Install the dependencies
-#RUN npm install --loglevel=error
-RUN npm install
+RUN npm install --loglevel=error
 
 # Copy the rest of the frontend directory into the container
 COPY . .

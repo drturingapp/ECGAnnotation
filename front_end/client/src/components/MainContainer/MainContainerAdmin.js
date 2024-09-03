@@ -125,7 +125,7 @@ export default class MainContainerAdmin extends React.Component {
                 acquisitionDateTime: '',
                 sampleBase: 0
             },
-            annotatorID: this.props.history.location.state.detail,
+            annotatorID: this.props.history?.location?.state?.detail,
             annotations_all: [],
             logoutMessage: '', // State to hold the logout message
         }

@@ -1,14 +1,13 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import './ResetPassword.css';
-import { useHistory, useLocation } from 'react-router-dom'; // Import useHistory and useLocation from react-router-dom
+import { useLocation } from 'react-router-dom'; // Import useHistory and useLocation from react-router-dom
 
 const ResetPassword = () => {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
-  const history = useHistory();
   const location = useLocation();
   const query = new URLSearchParams(location.search);
   const token = query.get('token'); // Extract token from query params
@@ -28,10 +27,12 @@ const ResetPassword = () => {
     // Send POST request to the server
     axios.post('http://localhost:3000/reset-password', { token, newPassword })
         .then(response => {
+          console.log("🚀 ~ handleSubmit ~ response:", response)
+
             if (response.data.status === 200) {
             setMessage(response.data.msg); // Show success message
             setTimeout(() => {
-                history.push('/'); // Redirect to home or login page after a short delay
+              window.location.href = `/`;
             }, 2000);
             } else {
             setError(response.data.msg); // Show error message

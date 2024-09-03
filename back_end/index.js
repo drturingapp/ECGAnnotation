@@ -445,19 +445,21 @@ app.post('/forgot-password', (req, res) => {
         const token = crypto.randomBytes(20).toString('hex');
         passwordResetTokens[token] = email; // Store the token with the associated email
 
-        // Normally, you'd send an email with this token
-        // For this example, just log the token
-        console.log(`Password reset token for ${email}: ${token}`);
+        const verificationLink = `http://localhost:3001/#/reset-password?token=${token}`;
+        const username = results[0].name || 'User'; // Replace with actual username field
+        const company = 'ECGAnnotation'; // Replace with actual company name
 
-        return res.json({ status: 200, msg: 'Password reset link sent', token });
+        sendEmail(email, 'Forgot Password', 'forgotPassword', { username, verificationLink, company });
+        return res.json({ status: 200, msg: 'Password reset link sent.please check your email' });
     });
 });
 
 // Insert Comment Method
 app.post('/insertComment', function(req, res) {
     const ecgID = req.body.ecgID;
+    console.log("🚀 ~ app.post ~  req.body:",  req.body)
     const comment = req.body.comment;
-    const annID = req.body.annID;
+    const annID = req.body.annID.data; // Extract the 'data' field from 'annID'
 
     const INSERT_USER_QUERY = 'INSERT INTO Comments (ECGID, AnnID, Comment) VALUES (?, ?, ?)';
     console.log(`INSERT INTO Comments (ECGID, AnnID, Comment) VALUES (${ecgID}, ${annID}, ${comment})`);

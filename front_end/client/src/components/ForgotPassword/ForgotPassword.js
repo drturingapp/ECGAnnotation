@@ -1,13 +1,11 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import './ForgotPassword.css';
-import { useHistory } from 'react-router-dom'; // Import useHistory from react-router-dom
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
-  const history = useHistory(); // Hook to navigate programmatically
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -22,8 +20,8 @@ const ForgotPassword = () => {
         if (response.data.status === 200) {
           setMessage(response.data.msg); // Show success message
           setTimeout(() => {
-            history.push(`/reset-password?token=${response.data.token}`);
-        }, 2000);
+            window.location.href = `/#`;
+          }, 2000);
         } else {
           setError(response.data.msg); // Show error message
         }
@@ -55,7 +53,6 @@ const ForgotPassword = () => {
           </button>
         </form>
         {message && <p className="success-message">{message}</p>}
-        {error && <p className="error-message">{error}</p>}
       </div>
     </div>
   );

@@ -13,6 +13,8 @@ import * as d3 from 'd3';
 import axios from "axios";
 import  KeyHandler,{ KEYPRESS } from 'react-key-handler';
 import GridItemReadOnly from "../Grid/GridItem/GridItemReadOnly";
+import Cookies from 'js-cookie';
+
 let data = "";
 
 // Set constant colors here
@@ -753,6 +755,8 @@ export default class MainContainerReadOnly extends React.Component {
           localStorage.removeItem('token');
           const removedToken = localStorage.getItem('token');
           console.log('Token after removal:', removedToken);
+          // Remove the authToken cookie
+            Cookies.remove('authToken');
           this.setState({ logoutMessage: 'Logout successful!' });
           setTimeout(() => {
             window.location.href = '/#/';

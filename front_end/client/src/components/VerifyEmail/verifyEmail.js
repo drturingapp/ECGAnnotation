@@ -1,23 +1,35 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import axios from 'axios';
-import './VerifyEmail.css';
+import Cookies from 'js-cookie';
 
 const VerifyEmail = () => {
-    const [status, setStatus] = useState('pending'); // pending, success, error
+    const [status, setStatus] = useState('pending'); // Initially pending until verification is done
     const location = useLocation();
 
     useEffect(() => {
         const queryParams = new URLSearchParams(location.search);
         const token = queryParams.get('token');
-        console.log("🚀 ~ useEffect ~ token:", token)
 
         if (token) {
+            // Save token and authToken first
+            localStorage.setItem('token', token);
+            Cookies.set('authToken', token, {
+                expires: 7,
+                secure: true,
+                sameSite: 'Strict'
+            });
+
+            // Call the API to verify the token
             axios.get(`http://localhost:3000/verify-email?token=${token}`)
                 .then(response => {
-                    setStatus('success');
+                    if (response.status === 200) {
+                        setStatus('success');
+                    } else {
+                        setStatus('error');
+                    }
                 })
-                .catch(error => {
+                .catch(() => {
                     setStatus('error');
                 });
         } else {

@@ -96,7 +96,7 @@ class Register extends React.Component {
             .then(response => {
                 console.log("🚀 ~ Register ~ handleRegister ~ response:", response)
 
-                if (response.data.status===200) {
+                if (response.data.status === 200) {
                     this.setState({ successMessage: 'Registration successful!. Please Verify Your Email To login' }); // Set success message
                     setTimeout(() => this.props.history.push('/'), 1000); // Delay redirection                    this.props.history.push('/');
                 } else {

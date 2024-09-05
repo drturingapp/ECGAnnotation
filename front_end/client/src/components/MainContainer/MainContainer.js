@@ -22,6 +22,8 @@ import Button from "@material-ui/core/Button";
 import Container from "@material-ui/core/Container";
 import axios from "axios";
 import Modal from '../modal/uploadModal'; // Import the Modal component
+import Cookies from 'js-cookie';
+
 let data = "";
 
 // Set constant colors here
@@ -733,6 +735,10 @@ export default class MainContainer extends React.Component {
           localStorage.removeItem('token');
           const removedToken = localStorage.getItem('token');
           console.log('Token after removal:', removedToken);
+
+           // Remove the authToken cookie
+           Cookies.remove('authToken');
+
           this.setState({ logoutMessage: 'Logout successful!' });
           setTimeout(() => {
             window.location.href = '/#/';

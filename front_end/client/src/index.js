@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-import { BrowserRouter, Route } from 'react-router-dom';
+import { HashRouter, Route } from 'react-router-dom';
 
 import Login from './components/Login/LoginSecond';
 import MainContainer from './components/MainContainer/MainContainer';
@@ -16,7 +16,7 @@ import VerifyEmail from './components/VerifyEmail/verifyEmail';
 import PrivateRoute from './components/protectedRoutes/loginProtected';
 
 ReactDOM.render(
-    <BrowserRouter basename={'/#/'}>
+    <HashRouter>
         <div>
             <Route exact path="/" component={Login}/>
             <PrivateRoute path="/mainContainer" component={MainContainer} />
@@ -29,6 +29,6 @@ ReactDOM.render(
             <PrivateRoute exact path="/upload" component={UploadFilePage}/>
             <Route exact path="/verify-email" component={VerifyEmail}/>
         </div>
-    </BrowserRouter>,
+    </HashRouter>,
     document.getElementById('root')
 );

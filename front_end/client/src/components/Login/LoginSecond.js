@@ -5,6 +5,7 @@ import Button from "@material-ui/core/Button";
 import { Route , withRouter1} from 'react-router-dom';
 import {Router} from 'react-router-dom';
 import { withRouter } from "react-router";
+import Cookies from 'js-cookie';
 
 import { createHashHistory } from 'history';
 
@@ -54,42 +55,50 @@ class LoginSecond extends React.Component {
 
     submitClicked = () => {
         let { username, password } = this.state;
-
-        axios.get(serverURL + 'authenticate', { mode: 'no-cors', auth: { username, password } })
+    
+        axios.post(serverURL + 'authenticate', { username, password })
             .then(response => {
-                console.log('Here',response.data);
+                console.log('Here', response.data);
+    
                 if (response.data.token) {
-                    // Save token to localStorage or cookies
                     localStorage.setItem('token', response.data.token);
-                    // this.props.history.push('/mainContainer');
+                    Cookies.set('authToken', response.data.token, {
+                        expires: 7,
+                        secure: true,
+                        sameSite: 'Strict'
+                    });
                 }
-                if (response.data.status === 403) {
-                    // If email is not verified, show the message
-                    this.setState({ errorMessage: response.data.msg });
-                }
-                if (response.data.data === 5) {
-                    console.log('admin here');
-                    this.props.history.push({ pathname: '/mainContainerAdmin', search: '?query=abc', state: { detail: response.data } });
-                } else if (response.data.data === 6 || response.data.data === 7) {
-                    console.log('checker here');
-                    this.props.history.push({ pathname: '/mainContainerAnnChecker', search: '?query=abc', state: { detail: response.data } });
-                } else if (response.data.data === 8) {
-                    console.log('readonly here');
-                    this.props.history.push({ pathname: '/mainContainerReadOnly', search: '?query=abc', state: { detail: response.data } });
+    
+                if (response.data.data.status === 403 && response.data.data.isVerified === 0) {
+                    this.setState({ errorMessage: 'Please verify your account before login.' });
+                    console.log(this.state.errorMessage); // Check the error message
+                } else if (response.data.data === 5) {
+                    this.props.history.push({ pathname: '/mainContainerAdmin', state: { detail: response.data } });
                 } else {
-                    this.props.history.push({ pathname: '/mainContainer', search: '?query=abc', state: { detail: response.data } });
+                    this.props.history.push({ pathname: '/mainContainer', state: { detail: response.data } });
                 }
             })
             .catch(err => {
-                if (err.response && err.response.data.status === 403) {
-                    // If email is not verified, show the message
-                    this.setState({ errorMessage: err.response.data.msg });
+                console.log('err: ', err); // Log the entire error object to inspect
+            
+                // Check if we received an error response from the server
+                if (err.response) {
+                    const { data, status } = err.response;
+            
+                    // Check for status code 403 and specific error message
+                    if (status === 403 && data === "Please verify your account before login") {
+                        this.setState({ errorMessage: 'Please verify your account before login.' });
+                    } else {
+                        this.setState({ errorMessage: data || "Sign-in Failed!" });
+                    }
                 } else {
-                    // For other errors
-                    alert("Sign-in Failed!");
+                    // If there's no response data (e.g., network error), set a general error message
+                    this.setState({ errorMessage: "Sign-in Failed!" });
                 }
             });
-        };
+            
+    };
+    
 
     registerClicked = () => {
         this.props.history.push('/register');

@@ -38,10 +38,13 @@ const upload = multer({ storage: storage });
 
 let retryCount = 0;
 
-app.use(cors());
 app.use(express.json());       // to support JSON-encoded bodies
 app.use(express.urlencoded({extended:true})); // to support URL-encoded bodies
-
+app.use(cors({
+    origin: '*', // This allows all origins. For more restrictive settings, you can specify particular origins.
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
 const mysqlConfig = {
     host: process.env.DB_HOST || 'localhost',
     user: process.env.DB_USER || 'root',
@@ -86,13 +89,6 @@ const authMiddleware = async (req, res, next) => {
         if (!user.isVerified) {
             return res.status(403).json({ status: 403, success: false, msg: 'Please verify your email before signing in.' });
         }
-
-        // Bypass authentication for specific annotator_ids
-        const allowedAnnotatorIds = [5, 6, 8];
-        if (allowedAnnotatorIds.includes(user.annotator_id)) {
-            req.auth = { user: username }; // Pass the authenticated user to the next middleware/route
-            return next();
-        } 
         
         const isPasswordValid = await bcrypt.compare(password, user.password);
         console.log('Password Valid:', isPasswordValid);
@@ -233,7 +229,7 @@ const insertStaticUsers = async () => {
                 }
                 if (results.length === 0) {
                     const insertQuery = 'INSERT INTO Users (username, email, password, annotator_id, isVerified) VALUES (?, ?, ?, ?, ?)';
-                    connection.query(insertQuery, [user.username, user.email, hashedPassword, user.annotator_id, true], (err, results) => {
+                    connection.query(insertQuery, [user.username, user.email, hashedPassword, user.annotator_id, true], (err, results) => {                    
                         if (err) {
                             console.error(`Error inserting ${user.username}:`, err);
                         } else {
@@ -241,7 +237,7 @@ const insertStaticUsers = async () => {
                         }
                     });
                 } else {
-                    console.log(`${user.username} already exists, skipping insertion`);
+                    // console.log(`${user.username} already exists, skipping insertion`);
                 }
             });
         } catch (err) {
@@ -292,7 +288,7 @@ app.post('/register', (req, res) => {
                 } else {
                     console.log('User registered:', results);
                     // Send welcome email
-                    const verificationLink = `http://localhost:3001/verify-email?token=${verificationToken}`;
+                    const verificationLink = `http://localhost:3001/#/verify-email?token=${verificationToken}`;
                     sendEmail(email, 'Verify Your Email', 'verifyEmail', { username, verificationLink })
                     .then(() => {
                         return res.status(200).json({ status: 200, msg: 'User registered successfully.' });
@@ -325,17 +321,22 @@ app.get('/verify-email', (req, res) => {
         if (results.affectedRows === 0) {
             return res.status(400).json({ status: 400, msg: 'Invalid or expired token.' });
         }
-
         return res.status(200).json({ status: 200, msg: 'Email verified successfully. You can now sign in.' });
     });
 });
 
 
 // Updated /authenticate route with dynamic user validation
-app.get('/authenticate', authMiddleware, (req, res) => {
-    const username = req.auth.user;
+app.post('/authenticate', (req, res) => {
+    const { username, password } = req.body;
 
-    const query = 'SELECT id, annotator_id FROM Users WHERE username = ?';
+    // Validate request body
+    if (!username || !password) {
+        return res.status(400).send('Username and password are required');
+    }
+
+    // Query to get user details
+    const query = 'SELECT id, annotator_id, password, isVerified FROM Users WHERE username = ?';
     connection.query(query, [username], (err, results) => {
         if (err) {
             return res.status(500).send('Internal Server Error');
@@ -345,20 +346,38 @@ app.get('/authenticate', authMiddleware, (req, res) => {
             return res.status(404).send('Unknown user');
         }
 
-        const userId = results[0].id;
-        const annotatorId = results[0].annotator_id;
-        console.log('annotatorId: ', annotatorId);
+        const user = results[0];
 
-        // Create JWT token
-        const token = jwt.sign({ userId, username, annotatorId }, secretKey, {});
+        const userId = user.id;
+        const annotatorId = user.annotator_id;
+        const passwordHash = user.password;
+        const isVerified = user.isVerified;
 
-        // Save the token in the Users table
-        const updateTokenQuery = 'UPDATE Users SET token = ? WHERE id = ?';
-        connection.query(updateTokenQuery, [token, userId], (err, result) => {
+        // Verify the password
+        bcrypt.compare(password, passwordHash, (err, isMatch) => {
             if (err) {
-                return res.status(500).send('Failed to save token');
+                return res.status(500).send('Internal Server Error');
             }
-            res.send({ data: annotatorId , token });
+
+            if (!isMatch) {
+                return res.status(401).send('Invalid password');
+            }
+
+            if (isVerified === 0) {
+                return res.status(403).json('Please verify your account before login');
+            }
+
+            // Create JWT token
+            const token = jwt.sign({ userId, username, annotatorId }, secretKey, {});
+
+            // Save the token in the Users table
+            const updateTokenQuery = 'UPDATE Users SET token = ? WHERE id = ?';
+            connection.query(updateTokenQuery, [token, userId], (err, result) => {
+                if (err) {
+                    return res.status(500).send('Failed to save token');
+                }
+                res.send({ data: annotatorId, token });
+            });
         });
     });
 });
@@ -404,11 +423,12 @@ let passwordResetTokens = {};
 
 app.post('/reset-password', (req, res) => {
     const { token, newPassword } = req.body;
+    console.log('req.body: ', req.body);
 
     const email = passwordResetTokens[token]; // Retrieve the associated email using the token
 
     if (!email) {
-        return res.json({ status: 400, msg: 'Invalid or expired token' });
+        return res.status(400).send({ status: 400, msg: 'Invalid or expired token' });
     }
 
     bcrypt.hash(newPassword, saltRounds, (err, hashedPassword) => {
@@ -453,7 +473,7 @@ app.post('/forgot-password', (req, res) => {
         return res.json({ status: 200, msg: 'Password reset link sent.please check your email' });
     });
 });
-
+  
 // Insert Comment Method
 app.post('/insertComment', function(req, res) {
     const ecgID = req.body.ecgID;

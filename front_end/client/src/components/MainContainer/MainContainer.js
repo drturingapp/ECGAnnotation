@@ -898,7 +898,7 @@ export default class MainContainer extends React.Component {
 
                        <div>
                     <a
-                    href="#/"
+                    href="/"
                     onClick={(e) => {
                         e.preventDefault(); // Prevent default anchor behavior
                         this.handleLogout();

@@ -69,14 +69,21 @@ class LoginSecond extends React.Component {
                     });
                 }
     
+                // Delay for token setting
+            setTimeout(() => {
                 if (response.data.data.status === 403 && response.data.data.isVerified === 0) {
                     this.setState({ errorMessage: 'Please verify your account before login.' });
                     console.log(this.state.errorMessage); // Check the error message
                 } else if (response.data.data === 5) {
-                    this.props.history.push({ pathname: '/mainContainerAdmin', state: { detail: response.data } });
+                    this.props.history.push({ pathname: '/mainContainerAdmin', search: '?query=abc', state: { detail: response.data } });
+                } else if (response.data.data === 6 || response.data.data === 7) {
+                    this.props.history.push({ pathname: '/mainContainerAnnChecker', search: '?query=abc', state: { detail: response.data } });
+                } else if (response.data.data === 8) {
+                    this.props.history.push({ pathname: '/mainContainerReadOnly', search: '?query=abc', state: { detail: response.data } });
                 } else {
-                    this.props.history.push({ pathname: '/mainContainer', state: { detail: response.data } });
+                    this.props.history.push({ pathname: '/mainContainer', search: '?query=abc', state: { detail: response.data } });
                 }
+            }, 100); // Delay in milliseconds (100ms in this example)
             })
             .catch(err => {
                 console.log('err: ', err); // Log the entire error object to inspect

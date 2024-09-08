@@ -745,37 +745,37 @@ export default class MainContainerAdmin extends React.Component {
         console.log('token: ', token);
     
         if (!token) {
-          console.error('No token found');
-          this.setState({ logoutMessage: 'No token found!' });
-          return;
+            console.error('No token found');
+            window.location.href = '/#/';
+            this.setState({ logoutMessage: 'No token found!' });
+            return;
         }
     
         // Call the logout API to remove the token from the server/database
         axios.post(serverURL + 'logout', {}, {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
         })
-        .then((response) => {
-          console.log('Logout response:', response.data);
+        .then(response => {
+            console.log('Logout response:', response.data);
     
-          // Remove the token from localStorage
-          localStorage.removeItem('token');
-          const removedToken = localStorage.getItem('token');
-          console.log('Token after removal:', removedToken);
-          // Remove the authToken cookie
-          Cookies.remove('authToken');
-
-          this.setState({ logoutMessage: 'Logout successful!' });
-          setTimeout(() => {
-            window.location.href = '/#/';
-        }, 500);
+            // Remove the token from localStorage and cookies
+            localStorage.removeItem('token');
+            Cookies.remove('authToken');
+    
+            // After successful logout, redirect to login page
+            this.setState({ logoutMessage: 'Logout successful!' });
+            setTimeout(() => {
+                window.location.href = '/#/';
+            }, 500);  // Add slight delay before redirect
         })
-            .catch(err => {
-                console.error('Logout failed:', err);
-                this.setState({ logoutMessage: 'Logout failed!' });
-            });
+        .catch(err => {
+            console.error('Logout failed:', err);
+            this.setState({ logoutMessage: 'Logout failed!' });
+        });
     }
+    
 
     render() {
         const { age, gender, uploading, message, messageType, showModal } = this.state;

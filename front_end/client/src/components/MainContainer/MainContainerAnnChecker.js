@@ -666,6 +666,7 @@ export default class MainContainerAnnChecker extends React.Component {
     
         if (!token) {
           console.error('No token found');
+          window.location.href = '/#/';
           this.setState({ logoutMessage: 'No token found!' });
           return;
         }

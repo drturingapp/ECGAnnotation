@@ -738,6 +738,9 @@ export default class MainContainerReadOnly extends React.Component {
     
         if (!token) {
           console.error('No token found');
+          setTimeout(() => {
+            window.location.href = '/#/';
+        }, 500);
           this.setState({ logoutMessage: 'No token found!' });
           return;
         }

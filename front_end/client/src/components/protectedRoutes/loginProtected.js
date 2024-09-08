@@ -4,7 +4,7 @@ import Cookies from 'js-cookie';
 
 const PrivateRoute = ({ component: Component, ...rest }) => {
     const token = Cookies.get('authToken'); // Retrieve the token from the cookie
-    console.log('tokentoken', token)
+    console.log('Token:', token)
     return (
         <Route
             {...rest}

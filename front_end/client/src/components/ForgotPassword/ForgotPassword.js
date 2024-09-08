@@ -20,7 +20,7 @@ const ForgotPassword = () => {
         if (response.data.status === 200) {
           setMessage(response.data.msg); // Show success message
           setTimeout(() => {
-            window.location.href = `/#`;
+            window.location.href = `/#/`;
           }, 2000);
         } else {
           setError(response.data.msg); // Show error message

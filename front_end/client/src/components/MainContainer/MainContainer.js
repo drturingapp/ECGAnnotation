@@ -718,6 +718,8 @@ export default class MainContainer extends React.Component {
     
         if (!token) {
           console.error('No token found');
+          window.location.href = '/#/';
+
           this.setState({ logoutMessage: 'No token found!' });
           return;
         }

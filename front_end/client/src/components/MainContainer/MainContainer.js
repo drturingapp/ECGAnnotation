@@ -744,7 +744,7 @@ export default class MainContainer extends React.Component {
           this.setState({ logoutMessage: 'Logout successful!' });
           setTimeout(() => {
             window.location.href = '/#/';
-        }, 500);
+        }, 100);
         })
             .catch(err => {
                 console.error('Logout failed:', err);

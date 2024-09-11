@@ -288,7 +288,7 @@ app.post('/register', (req, res) => {
                 } else {
                     console.log('User registered:', results);
                     // Send welcome email
-                    const verificationLink = `http://localhost:3001/#/verify-email?token=${verificationToken}`;
+                    const verificationLink = `http://localhost:3001/verify-email?token=${verificationToken}`;
                     sendEmail(email, 'Verify Your Email', 'verifyEmail', { username, verificationLink })
                     .then(() => {
                         return res.status(200).json({ status: 200, msg: 'User registered successfully.' });
@@ -465,7 +465,7 @@ app.post('/forgot-password', (req, res) => {
         const token = crypto.randomBytes(20).toString('hex');
         passwordResetTokens[token] = email; // Store the token with the associated email
 
-        const verificationLink = `http://localhost:3001/#/reset-password?token=${token}`;
+        const verificationLink = `http://localhost:3001/reset-password?token=${token}`;
         const username = results[0].name || 'User'; // Replace with actual username field
         const company = 'ECGAnnotation'; // Replace with actual company name
 
@@ -518,6 +518,7 @@ app.post('/updateComment', function(req, res) {
 app.get('/getComment', function (req, res) {
 
     const{ecgID, annID} = req.query;
+    console.log("🚀 ~ req.query:", JSON.stringify(req.query));
     const SELECT_QUERY = 'SELECT * FROM Comments WHERE ECGID = ? AND AnnID = ?';
     console.log(`SELECT * FROM Comments WHERE ECGID = ${ecgID} AND AnnID = ${annID}`);
 

@@ -30,7 +30,7 @@ export default class LoadDataAnnChecker extends React.Component {
         this.state = {
             comment: '',
             previousComment: '',
-            annID: this.props.annotatorID,
+            annID: this.props.annotatorID?.data,
             ecgID: -1
         };
 

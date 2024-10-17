@@ -155,7 +155,7 @@ class GraphAnnChecker extends Component {
         let annotatorID = this.props.inputArr.annotatorID;
 
         if (annotatorID == 6) {
-            Axios.post(serverURL + "insertLUDBFirst",   {ecgID: ecgID, leadID: leadID, pointIndex: pointIndex, pointType: pointType})
+            Axios.post(serverURL + "insertFirstAnnotator",   {ecgID: ecgID, leadID: leadID, pointIndex: pointIndex, pointType: pointType})
                 .then(function (response) {
                     //handle success
                     console.log(response);
@@ -166,7 +166,7 @@ class GraphAnnChecker extends Component {
                     alert("Connection Error! Please Retry");
                 });
         } else if (annotatorID == 7) {
-            Axios.post(serverURL + "insertLUDBSecond",   {ecgID: ecgID, leadID: leadID, pointIndex: pointIndex, pointType: pointType})
+            Axios.post(serverURL + "insertSecondAnnotator",   {ecgID: ecgID, leadID: leadID, pointIndex: pointIndex, pointType: pointType})
                 .then(function (response) {
                     //handle success
                     console.log(response);
@@ -186,7 +186,7 @@ class GraphAnnChecker extends Component {
 
         if (annotatorID == 6) {
 
-            Axios.post(serverURL + "deleteLUDBCorrectionFirst",   {ecgID: ecgID, leadID: leadID, pointIndex: pointIndex})
+            Axios.post(serverURL + "deleteFirstAnnotator",   {ecgID: ecgID, leadID: leadID, pointIndex: pointIndex})
                 .then(function (response) {
                     //handle success
                     console.log(response);
@@ -199,7 +199,7 @@ class GraphAnnChecker extends Component {
 
         } else if (annotatorID == 7) {
 
-            Axios.post(serverURL + "deleteLUDBCorrectionSecond",   {ecgID: ecgID, leadID: leadID, pointIndex: pointIndex})
+            Axios.post(serverURL + "deleteSecondAnnotator",   {ecgID: ecgID, leadID: leadID, pointIndex: pointIndex})
                 .then(function (response) {
                     //handle success
                     console.log(response);
@@ -215,7 +215,7 @@ class GraphAnnChecker extends Component {
     }
 
     updateDB(e) {
-        console.log('I am here');
+        console.log('I am here brother');
 
         let editMode = e[0]._datasetIndex;
         let annotatorID = this.props.inputArr.annotatorID;
@@ -327,7 +327,7 @@ class GraphAnnChecker extends Component {
         let annotatorID = this.props.inputArr.annotatorID;
 
         if (annotatorID == 6) {
-            Axios.post(serverURL + "deleteLUDBCurrentFirst",   {ecgID: ecgID, leadID: leadID, pointIndex: pointIndex, pointType: pointType})
+            Axios.post(serverURL + "deleteFirstAnnotator",   {ecgID: ecgID, leadID: leadID, pointIndex: pointIndex, pointType: pointType})
                 .then(function (response) {
                     //handle success
                     console.log(response);
@@ -339,7 +339,7 @@ class GraphAnnChecker extends Component {
 
         } else if (annotatorID == 7) {
 
-            Axios.post(serverURL + "deleteLUDBCurrentSecond",   {ecgID: ecgID, leadID: leadID, pointIndex: pointIndex, pointType: pointType})
+            Axios.post(serverURL + "deleteSecondAnnotator",   {ecgID: ecgID, leadID: leadID, pointIndex: pointIndex, pointType: pointType})
                 .then(function (response) {
                     //handle success
                     console.log(response);
@@ -498,7 +498,7 @@ class GraphAnnChecker extends Component {
 
         if (annotatorID == 6) {
 
-            var urlFirst = new URL(serverURL + "getLUDBCurrentFirst"),
+            var urlFirst = new URL(serverURL + "getFirstAnnotator"),
                 params1 = {ecgID: ecgID, leadID: leadID};
             Object.keys(params1).forEach(key => urlFirst.searchParams.append(key, params1[key]));
 
@@ -516,7 +516,7 @@ class GraphAnnChecker extends Component {
 
         } else if (annotatorID == 7) {
 
-            var urlFirst = new URL(serverURL + "getLUDBCurrentSecond"),
+            var urlFirst = new URL(serverURL + "getSecondAnnotator"),
                 params1 = {ecgID: ecgID, leadID: leadID};
             Object.keys(params1).forEach(key => urlFirst.searchParams.append(key, params1[key]));
 
@@ -541,12 +541,12 @@ class GraphAnnChecker extends Component {
     static getSelectQuery(annotatorID, ecgID, leadID, pointType) {
 
         if (annotatorID == 6) {
-            var url = new URL(serverURL + "getLUDBCorrectionFirst"),
+            var url = new URL(serverURL + "getFirstAnnotator"),
                 params = {ecgID: ecgID, leadID: leadID, pointType: pointType};
             Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
             return url;
         } else if (annotatorID == 7) {
-            var url = new URL(serverURL + "getLUDBCorrectionSecond"),
+            var url = new URL(serverURL + "getSecondAnnotator"),
                 params = {ecgID: ecgID, leadID: leadID, pointType: pointType};
             Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
             return url;

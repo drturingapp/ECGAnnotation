@@ -188,7 +188,7 @@ class GraphAdmin extends Component {
     // DB Insert Function
     insertIntoDB(ecgID, leadID, pointIndex, pointType) {
 
-        Axios.post(serverURL + "insertAdmin",   {ecgID: ecgID, leadID: leadID, pointIndex: pointIndex, pointType: pointType})
+        Axios.post(serverURL + "insertFirstAnnotator",   {ecgID: ecgID, leadID: leadID, pointIndex: pointIndex, pointType: pointType})
             .then(function (response) {
                 //handle success
                 console.log(response);
@@ -203,7 +203,7 @@ class GraphAdmin extends Component {
     // DB Delete Function
     deleteFromDB(ecgID, leadID, pointIndex, annotatorID) {
 
-        Axios.post(serverURL + "deleteAdmin",   {ecgID: ecgID, leadID: leadID, pointIndex: pointIndex})
+        Axios.post(serverURL + "deleteFirstAnnotator",   {ecgID: ecgID, leadID: leadID, pointIndex: pointIndex})
             .then(function (response) {
                 //handle success
                 console.log(response);
@@ -375,7 +375,7 @@ class GraphAdmin extends Component {
 
         if (annID == 1) {
 
-            Axios.post(serverURL + "deleteFirstDisag",   {ecgID: ecgID, leadID: leadID, pointIndex: pointIndex, pointType: pointType})
+            Axios.post(serverURL + "deleteFirstAnnotator",   {ecgID: ecgID, leadID: leadID, pointIndex: pointIndex, pointType: pointType})
                 .then(function (response) {
                     //handle success
                     console.log(response);
@@ -388,7 +388,7 @@ class GraphAdmin extends Component {
 
         } else {
 
-            Axios.post(serverURL + "deleteSecondDisag",{ecgID: ecgID, leadID: leadID, pointIndex: pointIndex, pointType: pointType})
+            Axios.post(serverURL + "deleteSecondAnnotator",{ecgID: ecgID, leadID: leadID, pointIndex: pointIndex, pointType: pointType})
                 .then(function (response) {
                     //handle success
                     console.log(response);
@@ -554,11 +554,11 @@ class GraphAdmin extends Component {
 
     static fetchDisagreements(ecgID, leadID) {
 
-        var urlFirst = new URL(serverURL + "getFirstDisag"),
+        var urlFirst = new URL(serverURL + "getFirstAnnotator"),
             params1 = {ecgID: ecgID, leadID: leadID};
         Object.keys(params1).forEach(key => urlFirst.searchParams.append(key, params1[key]));
 
-        var urlSecond = new URL(serverURL + "getSecondDisag"),
+        var urlSecond = new URL(serverURL + "getSecondAnnotator"),
             params2 = {ecgID: ecgID, leadID: leadID};
         Object.keys(params2).forEach(key => urlSecond.searchParams.append(key, params2[key]));
 
@@ -584,7 +584,7 @@ class GraphAdmin extends Component {
 
     static getSelectQuery(annotatorID, ecgID, leadID, pointType) {
 
-        var url = new URL(serverURL + "getAdmin"),
+        var url = new URL(serverURL + "getFirstAnnotator"),
             params = {ecgID: ecgID, leadID: leadID, pointType: pointType};
         Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
         return url;

@@ -9,17 +9,11 @@ import Metadata from "../Metadata/Metadata";
 import metaData from "../Metadata/meta.csv"
 import LoadData from "../LoadData/LoadData";
 import Header from "../Header/Header";
-import Graph from "../Graph"
 //import ControlPanel from "../ControlPanel/ControlPanel";
 import * as d3 from 'd3';
 //import Canvas from 'canvas'
 //import { fontWeight } from "@material-ui/system";
 import  KeyHandler,{ KEYPRESS } from 'react-key-handler';
-import {SketchField, Tools} from "react-sketch";
-import Typography from "@material-ui/core/Typography";
-import TextField from "@material-ui/core/TextField";
-import Button from "@material-ui/core/Button";
-import Container from "@material-ui/core/Container";
 import axios from "axios";
 import Cookies from 'js-cookie';
 

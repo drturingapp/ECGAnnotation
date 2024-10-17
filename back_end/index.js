@@ -53,54 +53,6 @@ const mysqlConfig = {
 };
 
 let connection;
-// Middleware for dynamic authentication
-const authMiddleware = async (req, res, next) => {
-    const authHeader = req.headers.authorization;
-    console.log('authHeader: ', authHeader);
-    if (!authHeader) {
-        return res.status(401).send('Missing Authorization Header');
-    }
-
-    const base64Credentials = authHeader.split(' ')[1];
-    console.log('base64Credentials: ', base64Credentials);
-    const credentials = Buffer.from(base64Credentials, 'base64').toString('ascii');
-    console.log('credentials: ', credentials);
-    const [username, password] = credentials.split(':');
-    console.log('Received Password: ', password);
-    console.log('Username: ', username);
-
-    const query = 'SELECT * FROM Users WHERE username = ?';
-    connection.query(query, [username], async (err, results) => {
-        if (err) {
-            return res.status(500).send('Internal Server Error');
-        }
-
-        if (results.length === 0) {
-            return res.status(401).send('Invalid Credentials');
-        }
-
-        const user = results[0];
-        console.log('User from DB: ', user);
-
-        // Log the stored password hash
-        console.log('Stored Hashed Password: ', user.password);
-
-        // Check if the email is verified
-        if (!user.isVerified) {
-            return res.status(403).json({ status: 403, success: false, msg: 'Please verify your email before signing in.' });
-        }
-        
-        const isPasswordValid = await bcrypt.compare(password, user.password);
-        console.log('Password Valid:', isPasswordValid);
-
-        if (!isPasswordValid) {
-            return res.status(401).send('Invalid Credentials');
-        }
-
-        req.auth = { user: username }; // Pass the authenticated user to the next middleware/route
-        next();
-    });
-};
 
 
 const connectToDatabase = () => {
@@ -157,7 +109,10 @@ const createTables = () => {
                 ECGID INT,
                 LeadID INT,
                 PointIndex INT,
-                PointType VARCHAR(255)
+                PointType VARCHAR(255),
+                userID INT,              -- New column for user ID
+                updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, -- Timestamp for updates
+                operation ENUM('add', 'delete') NOT NULL  -- New column for operation type
             )`,
         AnnotationSecond: `
             CREATE TABLE IF NOT EXISTS AnnotationSecond (

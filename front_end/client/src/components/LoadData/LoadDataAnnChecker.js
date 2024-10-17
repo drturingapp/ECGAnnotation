@@ -124,7 +124,7 @@ export default class LoadDataAnnChecker extends React.Component {
 
         var that = this;
 
-        Axios.post(serverURL + "insertCommentLUDB",   {ecgID: ecgID, annID: annID, comment: comment})
+        Axios.post(serverURL + "insertComment",   {ecgID: ecgID, annID: annID, comment: comment})
             .then(function (response) {
                 //handle success
                 console.log(response);
@@ -140,7 +140,7 @@ export default class LoadDataAnnChecker extends React.Component {
 
         var that = this;
 
-        Axios.post(serverURL + "updateCommentLUDB",   {ecgID: ecgID, annID: annID, comment: comment})
+        Axios.post(serverURL + "updateComment",   {ecgID: ecgID, annID: annID, comment: comment})
             .then(function (response) {
                 //handle success
                 console.log(response);
@@ -158,7 +158,7 @@ export default class LoadDataAnnChecker extends React.Component {
 
         var that = this;
 
-        const url = new URL(serverURL + "getCommentLUDB"),
+        const url = new URL(serverURL + "getComment"),
             params = {ecgID: ecgID,
                 annID: annotatorID};
         Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));

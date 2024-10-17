@@ -167,9 +167,10 @@ class Graph extends Component {
     }
 
     deleteFromDB(ecgID, leadID, pointIndex, annotatorID) {
+        const actualAnnotatorID = annotatorID.data
 
-        if (annotatorID == 1) {
-
+        if (actualAnnotatorID == 1) {
+            
             Axios.post(serverURL + "deleteFirstAnnotator",   {ecgID: ecgID, leadID: leadID, pointIndex: pointIndex})
                 .then(function (response) {
                     //handle success
@@ -181,7 +182,7 @@ class Graph extends Component {
                 });
 
 
-        } else if (annotatorID == 2) {
+        } else if (actualAnnotatorID == 2) {
 
             Axios.post(serverURL + "deleteSecondAnnotator",{ecgID: ecgID, leadID: leadID, pointIndex: pointIndex})
                 .then(function (response) {
@@ -486,29 +487,30 @@ class Graph extends Component {
     }
 
     static getSelectQuery(annotatorID, ecgID, leadID, pointType) {
+        const actualAnnotatorID = annotatorID.data; // Extract annotatorID from data
 
 
-        if (annotatorID == 1) {
+        if (actualAnnotatorID == 1) {
             var url = new URL(serverURL + "getFirstAnnotator"),
                 params = {ecgID: ecgID, leadID: leadID, pointType: pointType};
             Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
 
             return url;
-        } else if (annotatorID == 2)  {
+        } else if (actualAnnotatorID == 2)  {
 
             var url = new URL(serverURL + "getSecondAnnotator"),
                 params = {ecgID: ecgID, leadID: leadID, pointType: pointType};
             Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
 
             return url;
-        } else if (annotatorID == 3) {
+        } else if (actualAnnotatorID == 3) {
             var url = new URL(serverURL + "getThirdAnnotator"),
                 params = {ecgID: ecgID, leadID: leadID, pointType: pointType};
             Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
 
             return url;
 
-        } else if (annotatorID == 4) {
+        } else if (actualAnnotatorID == 4) {
             var url = new URL(serverURL + "getForthAnnotator"),
                 params = {ecgID: ecgID, leadID: leadID, pointType: pointType};
             Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));

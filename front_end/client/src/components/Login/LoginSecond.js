@@ -35,7 +35,7 @@ class LoginSecond extends React.Component {
                     localStorage.setItem('token', response.data.token);
                     Cookies.set('authToken', response.data.token, {
                         expires: 7,
-                        secure: true,
+                        secure: false,
                         sameSite: 'Strict'
                     });
                 }

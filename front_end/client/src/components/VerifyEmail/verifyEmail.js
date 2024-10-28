@@ -16,7 +16,7 @@ const VerifyEmail = () => {
             localStorage.setItem('token', token);
             Cookies.set('authToken', token, {
                 expires: 7,
-                secure: true,
+                secure: false,
                 sameSite: 'Strict'
             });
 

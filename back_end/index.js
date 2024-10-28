@@ -434,7 +434,7 @@ app.post('/insertComment', function(req, res) {
     const ecgID = req.body.ecgID;
     console.log("🚀 ~ app.post ~  req.body:",  req.body)
     const comment = req.body.comment;
-    const annID = req.body.annID.data; // Extract the 'data' field from 'annID'
+    const annID = req.body.annID; // Extract the 'data' field from 'annID'
 
     const INSERT_USER_QUERY = 'INSERT INTO Comments (ECGID, AnnID, Comment) VALUES (?, ?, ?)';
     console.log(`INSERT INTO Comments (ECGID, AnnID, Comment) VALUES (${ecgID}, ${annID}, ${comment})`);
